@@ -2,7 +2,7 @@
 #
 # bootstrap installs things.
 
-cd "$(dirname "$0")/.."
+# cd "$(dirname "$0")/.."
 DOTFILES_ROOT=$(pwd -P)
 
 set -e
@@ -49,7 +49,7 @@ setup_gitconfig () {
 
 installRuby () {
   sudo apt install ruby ruby-dev ruby-colorize -y
-  gem install colorls
+  sudo gem install colorls
 
 }
 
@@ -186,7 +186,7 @@ if [ ! -e /mnt/c/Users ]
 then
   sudo cp $HOME/.dotfiles/Source\ Code\ Pro\ Nerd\ Font\ Complete\ Mono.ttf /usr/local/share/fonts
   sudo chown root /usr/local/share/fonts/Source\ Code\ Pro\ Nerd\ Font\ Complete\ Mono.ttf
-  sudo fc-cache -fv
+  # sudo fc-cache -fv
   $HOME/.dotfiles/terminal/gnome-terminal-profile import $HOME/.dotfiles/terminal/terminal.gnome && echo "terminal profile loaded successfully!"
   # symlink VSCode User Settings
   if [ -e $HOME/.config/Code/User ]
