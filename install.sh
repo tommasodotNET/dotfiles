@@ -140,8 +140,6 @@ git clone https://github.com/tommasodotnet/dotfiles.git ~/.dotfiles
 echo ''
 cd $HOME/.dotfiles && echo "switched to .dotfiles dir..."
 echo ''
-echo "Checking out wsl branch..." && git checkout wsl
-echo ''
 echo "Now configuring symlinks..." && $HOME/.dotfiles/script/bootstrap
 if [[ $? -eq 0 ]]
 then
