@@ -1,0 +1,18 @@
+alias lc='colorls -la'
+alias ls="colorls --sd -A"
+alias zshconfig="code ~/.zshrc"
+alias ohmyzsh="code ~/.oh-my-zsh"
+alias config='/usr/bin/git --git-dir=/Users/$(whoami)/.cfg/ --work-tree=/Users/$(whoami)'
+alias h3="/usr/local/bin/tmp/helm"
+alias badwifi='k config use-context docker-desktop'
+alias jdk8s='k config use-context jdk8s-us'
+alias jdk8s3='k config use-context jdk8s3'
+alias js='~/bin/show-struct.py'
+alias repos='cd /mnt/c/src'
+#acs-engine
+alias acse="/usr/local/bin/acs-engine"
+
+for alias_topic_file ($HOME/.dotfiles/*/aliases.zsh) 
+    if [ -f $alias_topic_file ]; then  
+        source $alias_topic_file
+    fi;
