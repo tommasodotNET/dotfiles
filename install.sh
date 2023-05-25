@@ -137,6 +137,7 @@ mv dircolors.256dark .dircolors
 echo ''
 echo "Now pulling down tommasodotnet dotfiles..."
 git clone https://github.com/tommasodotnet/dotfiles.git ~/.dotfiles
+sudo chmod +x $HOME/.dotfiles/script/bootstrap
 echo ''
 cd $HOME/.dotfiles && echo "switched to .dotfiles dir..."
 echo ''
