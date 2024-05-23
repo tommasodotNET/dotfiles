@@ -6,6 +6,7 @@
         username = tommasodotnet
 [init]
         initialBranch = main
+	defaultBranch = main
 [include]
         path = ~/.gitconfig.local
 [hub]

@@ -149,8 +149,6 @@ ZSH_HIGHLIGHT_STYLES[path_approx]=fg=cyan
 ZSH_HIGHLIGHT_PATTERNS+=('rm -rf *' 'fg=white,bold,bg=red') # To have commands starting with `rm -rf` in red:
 
 #---- Export ----
-export PATH=$PATH:~/bin
-export PATH=$PATH:/usr/local/go/bin
 for path_topic_file ($HOME/.dotfiles/*/path.zsh) 
     if [ -f $path_topic_file ]; then  
         source $path_topic_file
@@ -163,4 +161,6 @@ source <(kubectl completion zsh)
 #source $(dirname $(gem which colorls))/tab_complete.sh
 #---- End Source ----
 #---- END CUSTOM ----# added by github/training-manual class setup
+test -f "/home/tommasodotnet/.trainingmanualrc" && source "/home/tommasodotnet/.trainingmanualrc"
+# added by github/training-manual class setup
 test -f "/home/tommasodotnet/.trainingmanualrc" && source "/home/tommasodotnet/.trainingmanualrc"
