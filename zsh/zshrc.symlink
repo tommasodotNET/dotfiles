@@ -13,7 +13,7 @@ zstyle ':bracketed-paste-magic' active-widgets '.self-*'
 
 # zsh tmux settings
 ZSH_TMUX_AUTOSTART='true'
-ZSH_TMUX_AUTOCONNECT='false' # do not autoconnect to existing tmux session, allows a new term new tmux session
+ZSH_TMUX_AUTOCONNECT='true' # do not autoconnect to existing tmux session, allows a new term new tmux session
 
 # #Background Jobs Function
 # set_default POWERLEVEL9K_BACKGROUND_JOBS_VERBOSE true
