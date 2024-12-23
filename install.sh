@@ -136,52 +136,48 @@ mv dircolors.256dark .dircolors
 
 echo ''
 echo "Now pulling down tommasodotnet dotfiles..."
-git clone https://github.com/tommasodotnet/dotfiles.git ~/.dotfiles
-sudo chmod +x $HOME/.dotfiles/script/bootstrap
-echo ''
-cd $HOME/.dotfiles && echo "switched to .dotfiles dir..."
-echo ''
-echo "Now configuring symlinks..." && $HOME/.dotfiles/script/bootstrap
-if [[ $? -eq 0 ]]
-then
+{ #try
+    git clone https://github.com/tommasodotnet/dotfiles.git ~/.dotfiles
+    sudo chmod +x $HOME/.dotfiles/script/bootstrap
+    echo ''
+    cd $HOME/.dotfiles && echo "switched to .dotfiles dir..."
+    echo ''
+    echo "Now configuring symlinks..." && $HOME/.dotfiles/script/bootstrap
     echo "Successfully configured your environment with tommasodotnet's dotfiles..."
-else
-    echo "tommasodotnet's dotfiles were not applied successfully..." >&2
+} || { #catch
+    echo "tommasodotnet's dotfiles not pulled down successfully..." >&2
+}
 
 echo "Now installing az cli..."
-AZ_REPO=$(lsb_release -cs)
-echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | \
-    sudo tee /etc/apt/sources.list.d/azure-cli.list
+{ #try
+    AZ_REPO=$(lsb_release -cs)
+    echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | \
+        sudo tee /etc/apt/sources.list.d/azure-cli.list
 
-sudo apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
-sudo curl -L https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-sudo apt-get install apt-transport-https
-sudo apt-get update && sudo apt-get install azure-cli
-
-if [[ $? -eq 0 ]]
-then
+    sudo apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
+    sudo curl -L https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+    sudo apt-get install apt-transport-https
+    sudo apt-get update && sudo apt-get install azure-cli
     echo "Successfully installed Azure CLI."
-else
+} || { #catch
     echo "Azure CLI not installed successfully." >&2
-fi
+}
 
 echo "Now installing az developer cli..."
-curl -fsSL https://aka.ms/install-azd.sh | bash
-
-if [[ $? -eq 0 ]]
-then
+{ #try
+    curl -fsSL https://aka.ms/install-azd.sh | bash
     echo "Successfully installed Azure Developer CLI."
-else
+} || { #catch
     echo "Azure Developer CLI not installed successfully." >&2
-fi
+}
 
-echo "Now setting default shell..."
-chsh -s $(which zsh)
-if [[ $? -eq 0 ]]
-then
+{ # try
+    echo "Now setting default shell..."
+    chsh -s $(which zsh)
     echo "Successfully set your default shell to zsh..."
-else
+} || { # catch
     echo "Default shell not set successfully..." >&2
+}
 
 echo ''
 echo "Badass WSL terminal installed!"
