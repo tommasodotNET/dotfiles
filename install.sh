@@ -148,33 +148,13 @@ echo "Now pulling down tommasodotnet dotfiles..."
     echo "tommasodotnet's dotfiles not pulled down successfully..." >&2
 }
 
-echo "Now installing az cli..."
-{ #try
-    AZ_REPO=$(lsb_release -cs)
-    echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | \
-        sudo tee /etc/apt/sources.list.d/azure-cli.list
-
-    sudo apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
-    sudo curl -L https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-    sudo apt-get install apt-transport-https
-    sudo apt-get update && sudo apt-get install azure-cli
-    echo "Successfully installed Azure CLI."
-} || { #catch
-    echo "Azure CLI not installed successfully." >&2
-}
-
-echo "Now installing az developer cli..."
-{ #try
-    curl -fsSL https://aka.ms/install-azd.sh | bash
-    echo "Successfully installed Azure Developer CLI."
-} || { #catch
-    echo "Azure Developer CLI not installed successfully." >&2
-}
+# find the installers and run them iteratively
+find . -name install.sh | while read installer ; do sh -c "${installer}" ; done
 
 { # try
     echo "Now setting default shell..."
     chsh -s $(which zsh)
-    echo "Successfully set your default shell to zsh..."
+    echo "Successfully set your default shell to zsh... logoff and login again to apply."
 } || { # catch
     echo "Default shell not set successfully..." >&2
 }
