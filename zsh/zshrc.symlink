@@ -157,8 +157,8 @@ for path_topic_file ($HOME/.dotfiles/*/path.zsh)
 #---- End Export ----
 
 #---- Source ----
-[ -f ~/bin/fubectl.source ] && source ~/bin/fubectl.source
-source <(kubectl completion zsh)
+# [ -f ~/bin/fubectl.source ] && source ~/bin/fubectl.source
+# source <(kubectl completion zsh)
 #source $(dirname $(gem which colorls))/tab_complete.sh
 #---- End Source ----
 #---- END CUSTOM ----# added by github/training-manual class setup
