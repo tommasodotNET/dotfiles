@@ -1,8 +1,9 @@
 echo "Installing dotnet"
 
 { #try 
-  curl -sSL https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.100-preview.7.25380.108/dotnet-sdk-10.0.100-preview.7.25380.108-linux-x64.tar.gz
-  tar zxf dotnet-sdk-10.0.100-preview.7.25380.108-linux-x64.tar.gz -C /usr/local/share/dotnet
+  curl -sSL https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.100-preview.7.25380.108/dotnet-sdk-10.0.100-preview.7.25380.108-linux-x64.tar.gz -o dotnet-sdk-10.0.100-preview.7.25380.108-linux-x64.tar.gz
+  sudo make /usr/local/share/dotnet
+  sudo tar zxf dotnet-sdk-10.0.100-preview.7.25380.108-linux-x64.tar.gz -C /usr/local/share/dotnet
 
   sudo ln -s /usr/local/share/dotnet/dotnet /usr/local/bin
   
