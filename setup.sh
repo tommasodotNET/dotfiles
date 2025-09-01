@@ -143,13 +143,11 @@ echo "Now pulling down tommasodotnet dotfiles..."
     cd $HOME/.dotfiles && echo "switched to .dotfiles dir..."
     echo ''
     echo "Now configuring symlinks..." && $HOME/.dotfiles/script/bootstrap
+	echo "Now installing software..." && $HOME/.dotfiles/script/install
     echo "Successfully configured your environment with tommasodotnet's dotfiles..."
 } || { #catch
     echo "tommasodotnet's dotfiles not pulled down successfully..." >&2
 }
-
-# find the installers and run them iteratively
-find . -name install.sh | while read installer ; do sh -c "${installer}" ; done
 
 { # try
     echo "Now setting default shell..."
