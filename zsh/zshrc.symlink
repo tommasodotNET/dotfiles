@@ -166,6 +166,8 @@ test -f "/home/tommasostocchi/.trainingmanualrc" && source "/home/tommasostocchi
 # added by github/training-manual class setup
 test -f "/home/tommasostocchi/.trainingmanualrc" && source "/home/tommasostocchi/.trainingmanualrc"
 
+sudo mkdir -p /run/user/1000/fnm_multishells
+sudo chmod -R o+w /run/user/1000
 # fnm
 FNM_PATH="/home/tommasostocchi/.local/share/fnm"
 if [ -d "$FNM_PATH" ]; then

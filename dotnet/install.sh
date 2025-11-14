@@ -1,12 +1,11 @@
 echo "Installing dotnet"
 
 { #try 
-  curl -sSL https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.100-preview.7.25380.108/dotnet-sdk-10.0.100-preview.7.25380.108-linux-x64.tar.gz -o dotnet-sdk-10.0.100-preview.7.25380.108-linux-x64.tar.gz
-  sudo make /usr/local/share/dotnet
-  sudo tar zxf dotnet-sdk-10.0.100-preview.7.25380.108-linux-x64.tar.gz -C /usr/local/share/dotnet
+  curl -sSL https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.100/dotnet-sdk-10.0.100-linux-x64.tar.gz -o dotnet-sdk-10.0.100-linux-x64.tar.gz
+  mkdir -p $HOME/dotnet && tar zxf dotnet-sdk-10.0.100-linux-x64.tar.gz -C $HOME/dotnet
+  export DOTNET_ROOT=$HOME/dotnet
+  export PATH=$PATH:$HOME/dotnet
 
-  sudo ln -s /usr/local/share/dotnet/dotnet /usr/local/bin
-  
   echo "Trusting dotnet dev certs"
   dotnet dev-certs https --trust
 } || { #catch
