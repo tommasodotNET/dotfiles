@@ -56,6 +56,13 @@ There's a few special files in the hierarchy.
   your `$HOME`. This is so you can keep all of those versioned in your dotfiles
   but still keep those autoloaded files in your home directory. These get
   symlinked in when you run `script/bootstrap`.
+- **gnome/**: GNOME Shell extensions under `gnome/extensions/` are symlinked into
+  `~/.local/share/gnome-shell/extensions/`, and the tracked
+  `gnome/themes/MacTahoe-Dark-grey/gnome-shell/gnome-shell.css` is symlinked back
+  into the matching theme directory when you run `script/bootstrap`.
+  Running `script/install` (which discovers `gnome/install.sh`) will also install
+  the **MacTahoe GTK theme**, **MacTahoe icon theme**, and
+  **CaskaydiaCove Nerd Font Mono**.
 
 ## Git clone
 There are two "master" branches here: WSL and MacOS.

@@ -1,0 +1,15 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+/* Hide GTK4 app titlebar and buttons when maximized */
+
+/* Completely hide the titlebar when maximized and in fullscreen*/
+.maximized .titlebar,
+.fullscreen .titlebar {
+  margin-top: -100px;
+}
+
+/* Completely hide window controls when maximized and in fullscreen*/
+.maximized headerbar windowcontrols,
+.fullscreen headerbar windowcontrols {
+  margin-left: -100px;
+}

@@ -124,6 +124,7 @@ link_file () {
 
   if [ "$skip" != "true" ]  # "false" or empty
   then
+    mkdir -p "$(dirname "$2")"
     ln -s "$1" "$2"
     success "linked $1 to $2"
   fi
@@ -141,8 +142,33 @@ install_dotfiles () {
   done
 }
 
+install_gnome_symlinks () {
+  info 'installing gnome symlinks'
+
+  local overwrite_all=true backup_all=false skip_all=false
+  local gnome_extensions_root="$DOTFILES_ROOT/gnome/extensions"
+  local gnome_theme_css="$DOTFILES_ROOT/gnome/themes/MacTahoe-Dark-grey/gnome-shell/gnome-shell.css"
+
+  if [ -d "$gnome_extensions_root" ]
+  then
+    for src in "$gnome_extensions_root"/*
+    do
+      [ -e "$src" ] || continue
+      dst="$HOME/.local/share/gnome-shell/extensions/$(basename "$src")"
+      link_file "$src" "$dst"
+    done
+  fi
+
+  if [ -f "$gnome_theme_css" ]
+  then
+    dst="$HOME/.themes/MacTahoe-Dark-grey/gnome-shell/gnome-shell.css"
+    link_file "$gnome_theme_css" "$dst"
+  fi
+}
+
 setup_gitconfig
 install_dotfiles
+install_gnome_symlinks
 installRuby
 
 # If we're on a Mac, let's install and setup homebrew.
