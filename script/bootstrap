@@ -166,9 +166,29 @@ install_gnome_symlinks () {
   fi
 }
 
+restore_gnome_settings () {
+  info 'restoring gnome extension settings'
+
+  local shell_dconf="$DOTFILES_ROOT/gnome/shell.dconf"
+  local extensions_dconf="$DOTFILES_ROOT/gnome/extensions.dconf"
+
+  if [ -f "$shell_dconf" ]
+  then
+    dconf load /org/gnome/shell/ < "$shell_dconf"
+    success "restored gnome shell settings (enabled extensions, favorites)"
+  fi
+
+  if [ -f "$extensions_dconf" ]
+  then
+    dconf load /org/gnome/shell/extensions/ < "$extensions_dconf"
+    success "restored gnome extension settings"
+  fi
+}
+
 setup_gitconfig
 install_dotfiles
 install_gnome_symlinks
+restore_gnome_settings
 installRuby
 
 # If we're on a Mac, let's install and setup homebrew.
