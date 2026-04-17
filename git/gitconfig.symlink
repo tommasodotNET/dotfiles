@@ -7,8 +7,6 @@
 [init]
         initialBranch = main
 	defaultBranch = main
-[include]
-        path = ~/.gitconfig.local
 [hub]
         protocol = https
 [alias]
