@@ -85,7 +85,7 @@ custom-theme-customize-running-dots=false
 custom-theme-running-dots-border-color='rgb(255,255,255)'
 custom-theme-running-dots-color='rgb(255,255,255)'
 custom-theme-shrink=false
-dash-max-icon-size=47
+dash-max-icon-size=46
 disable-overview-on-startup=true
 dock-fixed=false
 dock-position='BOTTOM'
@@ -96,7 +96,7 @@ max-alpha=0.80000000000000004
 middle-click-action='launch'
 multi-monitor=true
 preferred-monitor=-2
-preferred-monitor-by-connector='DP-5'
+preferred-monitor-by-connector='DP-6'
 preview-size-scale=0.0
 running-indicator-dominant-color=false
 running-indicator-style='DOTS'
@@ -106,7 +106,7 @@ show-mounts=true
 show-mounts-network=false
 show-mounts-only-mounted=true
 show-trash=false
-transparency-mode='FIXED'
+transparency-mode='DEFAULT'
 unity-backlit-items=false
 
 [ding]
@@ -245,17 +245,17 @@ toggle-always-on-top=@as []
 toggle-tiling-popup=@as []
 
 [user-theme-x]
-name='MacTahoe-Dark-grey'
+name='MacTahoe-Dark-blue'
 x-autoswitch=true
 x-color='prefer-dark'
 x-color-night='prefer-dark'
 x-cursor='Adwaita'
 x-cursor-night='Adwaita'
-x-gtk='MacTahoe-Dark-grey'
+x-gtk='MacTahoe-Dark-blue'
 x-gtk-night='MacTahoe-Dark-grey'
-x-icons='MacTahoe-grey-dark'
+x-icons='MacTahoe-blue'
 x-icons-night='MacTahoe-grey-dark'
-x-shell='MacTahoe-Dark-grey'
+x-shell='MacTahoe-Dark-blue'
 x-shell-night='MacTahoe-Dark-grey'
 x-stylesheet=false
 

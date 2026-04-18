@@ -147,7 +147,6 @@ install_gnome_symlinks () {
 
   local overwrite_all=true backup_all=false skip_all=false
   local gnome_extensions_root="$DOTFILES_ROOT/gnome/extensions"
-  local gnome_theme_css="$DOTFILES_ROOT/gnome/themes/MacTahoe-Dark-grey/gnome-shell/gnome-shell.css"
 
   if [ -d "$gnome_extensions_root" ]
   then
@@ -157,12 +156,6 @@ install_gnome_symlinks () {
       dst="$HOME/.local/share/gnome-shell/extensions/$(basename "$src")"
       link_file "$src" "$dst"
     done
-  fi
-
-  if [ -f "$gnome_theme_css" ]
-  then
-    dst="$HOME/.themes/MacTahoe-Dark-grey/gnome-shell/gnome-shell.css"
-    link_file "$gnome_theme_css" "$dst"
   fi
 }
 

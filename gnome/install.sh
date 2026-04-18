@@ -12,10 +12,10 @@ trap 'rm -rf "$TMPDIR"' EXIT
 GTK_THEME_DIR="$TMPDIR/MacTahoe-gtk-theme"
 git clone https://github.com/vinceliuice/MacTahoe-gtk-theme.git --depth=1 "$GTK_THEME_DIR"
 
-if [ ! -d "$HOME/.themes/MacTahoe-Dark-grey" ]; then
+if [ ! -d "$HOME/.themes/MacTahoe-Dark-blue" ]; then
   echo "  Installing MacTahoe GTK theme…"
   cd "$GTK_THEME_DIR"
-  ./install.sh -l -c dark -t grey -b
+  ./install.sh -l -c dark -t blue -b
   cd -
 else
   echo "  MacTahoe GTK theme already installed, skipping."
@@ -39,16 +39,16 @@ echo "  Applying Flatpak theme overrides…"
 sudo flatpak override --filesystem=xdg-config/gtk-3.0
 sudo flatpak override --filesystem=xdg-config/gtk-4.0
 cd "$GTK_THEME_DIR"
-./tweaks.sh -F -c dark -t grey
+./tweaks.sh -F -c dark -t blue
 cd -
 
 # ── MacTahoe Icon Theme ─────────────────────────────────────────────────────
 
-if [ ! -d "$HOME/.local/share/icons/MacTahoe-grey" ]; then
+if [ ! -d "$HOME/.local/share/icons/MacTahoe-blue" ]; then
   echo "  Installing MacTahoe icon theme…"
   git clone https://github.com/vinceliuice/MacTahoe-icon-theme.git --depth=1 "$TMPDIR/MacTahoe-icon-theme"
   cd "$TMPDIR/MacTahoe-icon-theme"
-  ./install.sh -t grey
+  ./install.sh -t blue -b
   cd -
 else
   echo "  MacTahoe icon theme already installed, skipping."
