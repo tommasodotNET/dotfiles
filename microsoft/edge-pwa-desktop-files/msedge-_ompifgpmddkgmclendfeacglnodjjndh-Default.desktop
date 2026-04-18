@@ -1,0 +1,11 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Version=1.0
+Terminal=false
+Type=Application
+Name=Microsoft Teams (PWA)
+StartupNotify=true
+MimeType=x-scheme-handler/web+msteams;x-scheme-handler/chromium;
+Exec=/opt/microsoft/msedge/microsoft-edge --profile-directory=Default --app-id=ompifgpmddkgmclendfeacglnodjjndh "--app-url=https://teams.cloud.microsoft/?clientType=pwa" %U
+Icon=msedge-ompifgpmddkgmclendfeacglnodjjndh-Default
+StartupWMClass=msedge-_ompifgpmddkgmclendfeacglnodjjndh-Default

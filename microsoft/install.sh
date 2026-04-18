@@ -3,6 +3,9 @@
 # Set up Microsoft corporate tooling on Ubuntu LTS:
 #   - Microsoft signing keys & repos (prod + insiders-fast + edge)
 #   - Microsoft Edge
+#   - Visual Studio Code (snap)
+#   - Edge PWA manifest resources from dotfiles
+#   - Edge PWA desktop launchers from dotfiles
 #   - Microsoft Identity Broker
 #   - Intune Company Portal
 #   - YubiKey / Smart Card support
@@ -15,6 +18,8 @@
 #   3. Open Edge, sign in with your @microsoft.com account using YubiKey
 
 set -e
+
+DOTFILES_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 # ── Microsoft signing keys & repos ──────────────────────────────────────────
 
@@ -42,6 +47,82 @@ sudo apt update
 
 echo "  Installing Microsoft Edge…"
 sudo apt install -y microsoft-edge-stable
+
+# ── Visual Studio Code (snap) ───────────────────────────────────────────────
+
+echo "  Installing Visual Studio Code (snap)…"
+if command -v snap >/dev/null 2>&1; then
+  if snap list code >/dev/null 2>&1; then
+    echo "  VS Code already installed via snap, skipping."
+  else
+    sudo snap install code --classic
+  fi
+else
+  echo "  snap command not found, skipping VS Code installation."
+fi
+
+# ── Edge PWA manifest resources ──────────────────────────────────────────────
+
+PWA_TARGET_DIR="$HOME/.config/microsoft-edge/Default/Web Applications/Manifest Resources"
+PWA_DOTFILES_DIR="$DOTFILES_ROOT/microsoft/edge-pwas"
+
+echo "  Linking Edge PWA manifest resources…"
+mkdir -p "$PWA_DOTFILES_DIR"
+mkdir -p "$(dirname "$PWA_TARGET_DIR")"
+
+if [ ! -L "$PWA_TARGET_DIR" ] && [ -d "$PWA_TARGET_DIR" ] && [ -z "$(ls -A "$PWA_DOTFILES_DIR" 2>/dev/null)" ]; then
+  echo "  Seeding dotfiles PWA store from current profile…"
+  cp -a "$PWA_TARGET_DIR/." "$PWA_DOTFILES_DIR/"
+fi
+
+if [ -L "$PWA_TARGET_DIR" ]; then
+  echo "  Edge PWA manifest resources already linked, skipping."
+else
+  if [ -e "$PWA_TARGET_DIR" ]; then
+    BACKUP_PATH="${PWA_TARGET_DIR}.backup-$(date +%Y%m%d%H%M%S)"
+    mv "$PWA_TARGET_DIR" "$BACKUP_PATH"
+    echo "  Backed up existing PWA manifest resources to $BACKUP_PATH"
+  fi
+  ln -s "$PWA_DOTFILES_DIR" "$PWA_TARGET_DIR"
+  echo "  Linked Edge PWA manifest resources."
+fi
+
+# ── Edge PWA desktop launchers ──────────────────────────────────────────────
+
+PWA_DESKTOP_DOTFILES_DIR="$DOTFILES_ROOT/microsoft/edge-pwa-desktop-files"
+PWA_DESKTOP_TARGET_DIR="$HOME/.local/share/applications"
+
+echo "  Linking Edge PWA desktop launchers…"
+mkdir -p "$PWA_DESKTOP_DOTFILES_DIR"
+mkdir -p "$PWA_DESKTOP_TARGET_DIR"
+
+if [ -z "$(ls -A "$PWA_DESKTOP_DOTFILES_DIR" 2>/dev/null)" ]; then
+  echo "  Seeding dotfiles PWA desktop launchers from current profile…"
+  for file in "$PWA_DESKTOP_TARGET_DIR"/msedge-*.desktop; do
+    [ -e "$file" ] || continue
+    cp -a "$file" "$PWA_DESKTOP_DOTFILES_DIR/"
+  done
+fi
+
+for src in "$PWA_DESKTOP_DOTFILES_DIR"/msedge-*.desktop; do
+  [ -e "$src" ] || continue
+  dst="$PWA_DESKTOP_TARGET_DIR/$(basename "$src")"
+
+  if [ -L "$dst" ] && [ "$(readlink "$dst")" = "$src" ]; then
+    continue
+  fi
+
+  if [ -L "$dst" ]; then
+    rm "$dst"
+  elif [ -e "$dst" ]; then
+    BACKUP_PATH="${dst}.backup-$(date +%Y%m%d%H%M%S)"
+    mv "$dst" "$BACKUP_PATH"
+    echo "  Backed up existing launcher to $BACKUP_PATH"
+  fi
+
+  ln -s "$src" "$dst"
+done
+echo "  Linked Edge PWA desktop launchers."
 
 # ── Microsoft Identity Broker ───────────────────────────────────────────────
 

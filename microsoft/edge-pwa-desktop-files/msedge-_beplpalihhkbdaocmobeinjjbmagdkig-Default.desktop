@@ -1,0 +1,10 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Version=1.0
+Terminal=false
+Type=Application
+Name=Microsoft OneDrive
+StartupNotify=true
+Exec=/opt/microsoft/msedge/microsoft-edge --profile-directory=Default --app-id=beplpalihhkbdaocmobeinjjbmagdkig --app-url=https://microsofteur-my.sharepoint.com/personal/tstocchi_microsoft_com/_layouts/15/onedrive.aspx
+Icon=msedge-beplpalihhkbdaocmobeinjjbmagdkig-Default
+StartupWMClass=msedge-_beplpalihhkbdaocmobeinjjbmagdkig-Default

@@ -69,3 +69,23 @@ if [ ! -d "$FONT_DIR" ]; then
 else
   echo "  CaskaydiaCove Nerd Font already installed, skipping."
 fi
+
+# ── Spotify Flatpak Dark Border Fix ─────────────────────────────────────────
+
+SPOTIFY_CONFIG_DIR="$HOME/.var/app/com.spotify.Client/config"
+SPOTIFY_FLAGS="$SPOTIFY_CONFIG_DIR/spotify-flags.conf"
+
+if ! flatpak list --app 2>/dev/null | grep -q com.spotify.Client; then
+  echo "  Installing Spotify via Flatpak…"
+  flatpak install -y flathub com.spotify.Client
+fi
+
+echo "  Applying Spotify Flatpak dark border fix…"
+mkdir -p "$SPOTIFY_CONFIG_DIR"
+cat > "$SPOTIFY_FLAGS" <<'EOF'
+--ozone-platform=x11
+--enable-features=RunAsNativeGtk
+EOF
+flatpak override --user --nosocket=wayland com.spotify.Client
+echo "  Spotify fix applied."
+fi
