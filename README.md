@@ -63,6 +63,9 @@ There's a few special files in the hierarchy.
   Running `script/install` (which discovers `gnome/install.sh`) will also install
   the **MacTahoe GTK theme**, **MacTahoe icon theme**, and
   **CaskaydiaCove Nerd Font Mono**.
+- **microsoft/icons/**: Custom `.icns` icon files for Edge PWAs (Teams, Outlook,
+  OneDrive), sourced from [macosicons.com](https://macosicons.com/). These are
+  converted to PNG and used to replace the default PWA icons at all required sizes.
 
 ## Git clone
 There are two "master" branches here: WSL and MacOS.
