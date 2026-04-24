@@ -22,6 +22,7 @@ class WindowControlsIndicator extends PanelMenu.Button {
         this._settings = Extension.lookupByUUID('kiwi@kemma').getSettings();
         this._settingsChangedId = this._settings.connect('changed', (_, key) => {
             if (key === 'button-type') this._updateAllIcons();
+            else if (key === 'button-size') this._updateButtonSizeClass();
             else if (key === 'show-window-controls' || key === 'enable-app-window-buttons') this._updateVisibility();
         });
 
@@ -44,22 +45,20 @@ class WindowControlsIndicator extends PanelMenu.Button {
         this._lastIsFullscreen = false;
         this._lastIsMaximized = false; // track maximized state changes
         this._fullscreenWindowSerial = 0; // increment when fullscreen window context changes
-        try {
-            this._box.connect('motion-event', () => {
-                if (this._suppressHoverUntilPointerMove) {
-                    this._suppressHoverUntilPointerMove = false;
-                    this._updateAllIcons();
-                }
-                return Clutter.EVENT_PROPAGATE;
-            });
-            
-            // Add leave event for the main container to reset hover state
-            this._box.connect('leave-event', () => {
-                this._isContainerHovered = false;
+        this._box.connect('motion-event', () => {
+            if (this._suppressHoverUntilPointerMove) {
+                this._suppressHoverUntilPointerMove = false;
                 this._updateAllIcons();
-                return Clutter.EVENT_PROPAGATE;
-            });
-        } catch (_) {}
+            }
+            return Clutter.EVENT_PROPAGATE;
+        });
+        
+        // Add leave event for the main container to reset hover state
+        this._box.connect('leave-event', () => {
+            this._isContainerHovered = false;
+            this._updateAllIcons();
+            return Clutter.EVENT_PROPAGATE;
+        });
 
         ['minimize', 'maximize', 'close'].forEach(buttonType => {
             const button = this[`_${buttonType}Button`];
@@ -141,9 +140,9 @@ class WindowControlsIndicator extends PanelMenu.Button {
                 // When screen is unlocked, re-evaluate window state after a short delay
                 if (!this._screenShield.active) {
                     if (this._screenShieldTimeoutId) {
-                        try { GLib.source_remove(this._screenShieldTimeoutId); } catch (_) {}
-                        this._screenShieldTimeoutId = null;
-                    }
+                    GLib.source_remove(this._screenShieldTimeoutId);
+                    this._screenShieldTimeoutId = null;
+                }
                     this._screenShieldTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
                         this._screenShieldTimeoutId = null;
                         this._onFocusWindowChanged();
@@ -155,6 +154,16 @@ class WindowControlsIndicator extends PanelMenu.Button {
         }
         
         this._updateVisibility();
+        this._updateButtonSizeClass();
+    }
+
+    _updateButtonSizeClass() {
+        const buttonSize = this._settings.get_string('button-size');
+        if (buttonSize === 'small') {
+            this._box.add_style_class_name('small-size');
+        } else {
+            this._box.remove_style_class_name('small-size');
+        }
     }
 
     _onFocusWindowChanged() {
@@ -369,7 +378,7 @@ class WindowControlsIndicator extends PanelMenu.Button {
 
     _clearCloseButtonDelay() {
         if (this._closeDelayTimeoutId) {
-            try { GLib.source_remove(this._closeDelayTimeoutId); } catch (_) {}
+            GLib.source_remove(this._closeDelayTimeoutId);
             this._closeDelayTimeoutId = null;
         }
         if (this._closeButtonDelayActive) {
@@ -386,7 +395,7 @@ class WindowControlsIndicator extends PanelMenu.Button {
         
         button.child = new St.Icon({
             gicon: new Gio.FileIcon({ file }),
-            icon_size: 16,
+            style_class: 'window-control-icon',
         });
     }
 
@@ -447,7 +456,7 @@ class WindowControlsIndicator extends PanelMenu.Button {
         if (this._overviewShowingId) Main.overview.disconnect(this._overviewShowingId);
         if (this._overviewHiddenId) Main.overview.disconnect(this._overviewHiddenId);
         if (this._screenShieldActiveId && this._screenShield) this._screenShield.disconnect(this._screenShieldActiveId);
-    if (this._screenShieldTimeoutId) { try { GLib.source_remove(this._screenShieldTimeoutId); } catch (_) {} this._screenShieldTimeoutId = null; }
+    if (this._screenShieldTimeoutId) { GLib.source_remove(this._screenShieldTimeoutId); this._screenShieldTimeoutId = null; }
 
         if (this._focusWindow) {
             if (this._focusWindowMaximizeHorizSignal) this._focusWindow.disconnect(this._focusWindowMaximizeHorizSignal);

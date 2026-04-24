@@ -32,7 +32,7 @@ cd -
 
 echo "  Applying Dash-to-Dock tweak…"
 cd "$GTK_THEME_DIR"
-./tweaks.sh -d -r
+./tweaks.sh -d
 cd -
 
 echo "  Applying Flatpak theme overrides…"

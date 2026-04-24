@@ -5,7 +5,8 @@
   "name": "User Theme X",
   "settings-schema": "org.gnome.shell.extensions.user-theme-x",
   "shell-version": [
-    "46"
+    "46",
+    "50"
   ],
   "url": "https://github.com/tuberry/user-theme-x",
   "uuid": "user-theme-x@tuberry.github.io",

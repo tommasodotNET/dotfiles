@@ -1,9 +1,0 @@
-#!/usr/bin/env xdg-open
-[Desktop Entry]
-Version=1.0
-Terminal=false
-Type=Application
-Name=Spotify
-Exec=/opt/microsoft/msedge/microsoft-edge --profile-directory=Default --app-id=pjibgclleladliembfgfagdaldikeohf "--app-url=https://open.spotify.com/?utm_source=pwa_install"
-Icon=msedge-pjibgclleladliembfgfagdaldikeohf-Default
-StartupWMClass=msedge-_pjibgclleladliembfgfagdaldikeohf-Default

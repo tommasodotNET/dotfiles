@@ -40,6 +40,7 @@ const TARGET_FILE_LIGHT = GLib.build_filenamev([TARGET_DIR, 'overview-blurred-wa
 const META_FILE_LIGHT = GLib.build_filenamev([TARGET_DIR, 'overview-blurred-wallpaper-light.meta']);
 const TARGET_FILE_DARK = GLib.build_filenamev([TARGET_DIR, 'overview-blurred-wallpaper-dark.jpg']);
 const META_FILE_DARK = GLib.build_filenamev([TARGET_DIR, 'overview-blurred-wallpaper-dark.meta']);
+const CSS_FILE = GLib.build_filenamev([TARGET_DIR, 'overview-bg.css']);
 
 function _removeFile(path) {
     try {
@@ -55,6 +56,7 @@ function _cleanupCache() {
     _removeFile(META_FILE_LIGHT);
     _removeFile(TARGET_FILE_DARK);
     _removeFile(META_FILE_DARK);
+    _removeFile(CSS_FILE);
     // Attempt to remove cache dir if empty (optional)
     try {
         const dir = Gio.File.new_for_path(TARGET_DIR);
@@ -326,11 +328,12 @@ function _chooseVariantPathForCurrentScheme() {
 
 function _updateBaseStylesheet(path) {
     if (_styleProvider) {
-        try { St.ThemeContext.get_for_stage(global.stage).get_theme().unload_stylesheet(_styleProvider); } catch (_) {}
+        St.ThemeContext.get_for_stage(global.stage).get_theme().unload_stylesheet(_styleProvider);
         _styleProvider = null;
     }
+    _ensureTargetDir();
     const cssContent = `#overviewGroup {\n  background-image: url("${path}");\n  background-size: cover;\n  background-position: center;\n  background-repeat: no-repeat;\n}`;
-    const cssFile = Gio.File.new_tmp('kiwi-overview-bg-XXXXXX.css')[0];
+    const cssFile = Gio.File.new_for_path(CSS_FILE);
     cssFile.replace_contents(cssContent, null, false, Gio.FileCreateFlags.REPLACE_DESTINATION, null);
     _styleProvider = cssFile;
     St.ThemeContext.get_for_stage(global.stage).get_theme().load_stylesheet(cssFile);
@@ -483,18 +486,16 @@ export function disable() {
     }
     // Disconnect wallpaper signals
     if (_bgSettings && _bgSignalIds.length) {
-        _bgSignalIds.forEach(id => { try { _bgSettings.disconnect(id); } catch (_) {} });
+        _bgSignalIds.forEach(id => { _bgSettings.disconnect(id); });
     }
     _bgSignalIds = [];
     // Disconnect color scheme
     if (_interfaceSettings && _interfaceSignalId) {
-        try { _interfaceSettings.disconnect(_interfaceSignalId); } catch (_) {}
+        _interfaceSettings.disconnect(_interfaceSignalId);
     }
     _interfaceSignalId = 0;
     if (_styleProvider) {
-        try {
-            St.ThemeContext.get_for_stage(global.stage).get_theme().unload_stylesheet(_styleProvider);
-        } catch (e) { /* ignore */ }
+        St.ThemeContext.get_for_stage(global.stage).get_theme().unload_stylesheet(_styleProvider);
         _styleProvider = null;
     }
     // Terminate any running conversion early to avoid writing after cleanup
