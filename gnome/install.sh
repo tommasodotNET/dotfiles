@@ -1,57 +1,70 @@
 #!/bin/sh
 #
-# Install MacTahoe GTK theme, MacTahoe icon theme, and CaskaydiaCove Nerd Font Mono.
+# Install GNOME extras. MacTahoe is opt-in; fonts and app fixes remain default.
 
 set -e
 
-TMPDIR=$(mktemp -d)
-trap 'rm -rf "$TMPDIR"' EXIT
-
-# ── MacTahoe GTK Theme ──────────────────────────────────────────────────────
-
-GTK_THEME_DIR="$TMPDIR/MacTahoe-gtk-theme"
-git clone https://github.com/vinceliuice/MacTahoe-gtk-theme.git --depth=1 "$GTK_THEME_DIR"
-
-if [ ! -d "$HOME/.themes/MacTahoe-Dark-blue" ]; then
-  echo "  Installing MacTahoe GTK theme…"
-  cd "$GTK_THEME_DIR"
-  ./install.sh -l -c dark -t blue -b
-  cd -
-else
-  echo "  MacTahoe GTK theme already installed, skipping."
-fi
-
-# ── MacTahoe GTK Theme Tweaks ───────────────────────────────────────────────
-
 DOTFILES_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
-echo "  Applying GDM tweak…"
-cd "$GTK_THEME_DIR"
-sudo ./tweaks.sh -g -b "$DOTFILES_ROOT/gnome/pictures/starwarshowlpc.jpg"
-cd -
+is_enabled() {
+  case "$1" in
+    1|true|TRUE|yes|YES|y|Y|on|ON) return 0 ;;
+    *) return 1 ;;
+  esac
+}
 
-echo "  Applying Dash-to-Dock tweak…"
-cd "$GTK_THEME_DIR"
-./tweaks.sh -d
-cd -
+INSTALL_MACOS_THEME="${DOTFILES_INSTALL_MACOS_THEME:-${INSTALL_MACOS_THEME:-0}}"
 
-echo "  Applying Flatpak theme overrides…"
-sudo flatpak override --filesystem=xdg-config/gtk-3.0
-sudo flatpak override --filesystem=xdg-config/gtk-4.0
-cd "$GTK_THEME_DIR"
-./tweaks.sh -F -c dark -t blue
-cd -
+if is_enabled "$INSTALL_MACOS_THEME"; then
+  TMPDIR=$(mktemp -d)
+  trap 'rm -rf "$TMPDIR"' EXIT
 
-# ── MacTahoe Icon Theme ─────────────────────────────────────────────────────
+  # ── MacTahoe GTK Theme ────────────────────────────────────────────────────
 
-if [ ! -d "$HOME/.local/share/icons/MacTahoe-blue" ]; then
-  echo "  Installing MacTahoe icon theme…"
-  git clone https://github.com/vinceliuice/MacTahoe-icon-theme.git --depth=1 "$TMPDIR/MacTahoe-icon-theme"
-  cd "$TMPDIR/MacTahoe-icon-theme"
-  ./install.sh -t blue -b
+  GTK_THEME_DIR="$TMPDIR/MacTahoe-gtk-theme"
+  git clone https://github.com/vinceliuice/MacTahoe-gtk-theme.git --depth=1 "$GTK_THEME_DIR"
+
+  if [ ! -d "$HOME/.themes/MacTahoe-Dark-blue" ]; then
+    echo "  Installing MacTahoe GTK theme…"
+    cd "$GTK_THEME_DIR"
+    ./install.sh -l -c dark -t blue -b
+    cd -
+  else
+    echo "  MacTahoe GTK theme already installed, skipping."
+  fi
+
+  # ── MacTahoe GTK Theme Tweaks ─────────────────────────────────────────────
+
+  echo "  Applying GDM tweak…"
+  cd "$GTK_THEME_DIR"
+  sudo ./tweaks.sh -g -b "$DOTFILES_ROOT/gnome/pictures/starwarshowlpc.jpg"
   cd -
+
+  echo "  Applying Dash-to-Dock tweak…"
+  cd "$GTK_THEME_DIR"
+  ./tweaks.sh -d
+  cd -
+
+  echo "  Applying Flatpak theme overrides…"
+  sudo flatpak override --filesystem=xdg-config/gtk-3.0
+  sudo flatpak override --filesystem=xdg-config/gtk-4.0
+  cd "$GTK_THEME_DIR"
+  ./tweaks.sh -F -c dark -t blue
+  cd -
+
+  # ── MacTahoe Icon Theme ───────────────────────────────────────────────────
+
+  if [ ! -d "$HOME/.local/share/icons/MacTahoe-blue" ]; then
+    echo "  Installing MacTahoe icon theme…"
+    git clone https://github.com/vinceliuice/MacTahoe-icon-theme.git --depth=1 "$TMPDIR/MacTahoe-icon-theme"
+    cd "$TMPDIR/MacTahoe-icon-theme"
+    ./install.sh -t blue -b
+    cd -
+  else
+    echo "  MacTahoe icon theme already installed, skipping."
+  fi
 else
-  echo "  MacTahoe icon theme already installed, skipping."
+  echo "  Skipping MacTahoe macOS theme. Set DOTFILES_INSTALL_MACOS_THEME=1 to install it."
 fi
 
 # ── CaskaydiaCove Nerd Font Mono ────────────────────────────────────────────
@@ -88,4 +101,3 @@ cat > "$SPOTIFY_FLAGS" <<'EOF'
 EOF
 flatpak override --user --nosocket=wayland com.spotify.Client
 echo "  Spotify fix applied."
-fi

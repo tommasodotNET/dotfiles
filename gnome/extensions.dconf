@@ -14,7 +14,7 @@ sigma=30
 style-dialogs=2
 
 [blur-my-shell/applications]
-blacklist=['Plank', 'com.desktop.ding', 'Conky', 'gjs', 'microsoft-edge', 'msedge-_ompifgpmddkgmclendfeacglnodjjndh-Default', 'msedge-_faolnafnngnfdaknnbpnkhgohbobgegn-Default', 'msedge-_beplpalihhkbdaocmobeinjjbmagdkig-Default', 'msedge-_pjibgclleladliembfgfagdaldikeohf-Default']
+blacklist=['Plank', 'com.desktop.ding', 'Conky', 'gjs', 'msedge-_faolnafnngnfdaknnbpnkhgohbobgegn-Default', 'msedge-_beplpalihhkbdaocmobeinjjbmagdkig-Default', 'msedge-_pjibgclleladliembfgfagdaldikeohf-Default', 'microsoft-edge', 'msedge-_ompifgpmddkgmclendfeacglnodjjndh-Default']
 blur=true
 blur-on-overview=false
 dynamic-opacity=false
@@ -66,7 +66,7 @@ sigma=30
 [caffeine]
 cli-toggle=true
 enable-mpris=true
-indicator-position-max=5
+indicator-position-max=4
 restore-state=true
 show-indicator='always'
 user-enabled=true
@@ -91,12 +91,13 @@ dock-fixed=false
 dock-position='BOTTOM'
 extend-height=false
 height-fraction=0.90000000000000002
+hot-keys=true
 intellihide-mode='ALL_WINDOWS'
 max-alpha=0.80000000000000004
 middle-click-action='launch'
-multi-monitor=true
+multi-monitor=false
 preferred-monitor=-2
-preferred-monitor-by-connector='DP-6'
+preferred-monitor-by-connector='DP-5'
 preview-size-scale=0.0
 running-indicator-dominant-color=false
 running-indicator-style='DOTS'
@@ -131,7 +132,7 @@ quick-settings-night-light=false
 ripple-box=true
 search=true
 show-apps-button=true
-startup-status=1
+startup-status=0
 support-notifier-showed-version=36
 support-notifier-type=0
 theme=false
@@ -143,8 +144,10 @@ workspaces-in-app-grid=true
 [kiwi]
 add-username-to-quick-menu=false
 battery-percentage=false
+button-size='normal'
 button-type='titlebuttons'
-enable-app-window-buttons=false
+enable-app-window-buttons=true
+enable-firefox-styling=true
 enable-launchpad-app=false
 move-calendar-right=true
 move-window-to-new-workspace=false
@@ -164,9 +167,13 @@ icon=18
 
 [rounded-window-corners-reborn]
 blacklist=['BeeperTexts']
-custom-rounded-corner-settings={'microsoft-edge': <{'padding': <{'left': uint32 10, 'right': 10, 'top': 7, 'bottom': 7}>, 'keepRoundedCorners': <{'maximized': true, 'fullscreen': false}>, 'borderRadius': <uint32 12>, 'smoothing': <0.0>, 'borderColor': <(0.5, 0.5, 0.5, 1.0)>, 'enabled': <true>}>, 'msedge-_ompifgpmddkgmclendfeacglnodjjndh-Default': <{'padding': <{'left': uint32 10, 'right': 10, 'top': 7, 'bottom': 7}>, 'keepRoundedCorners': <{'maximized': true, 'fullscreen': false}>, 'borderRadius': <uint32 12>, 'smoothing': <0.0>, 'borderColor': <(0.5, 0.5, 0.5, 1.0)>, 'enabled': <true>}>, 'msedge-_faolnafnngnfdaknnbpnkhgohbobgegn-Default': <{'padding': <{'left': uint32 10, 'right': 10, 'top': 7, 'bottom': 7}>, 'keepRoundedCorners': <{'maximized': true, 'fullscreen': false}>, 'borderRadius': <uint32 12>, 'smoothing': <0.0>, 'borderColor': <(0.5, 0.5, 0.5, 1.0)>, 'enabled': <true>}>, 'msedge-_pjibgclleladliembfgfagdaldikeohf-Default': <{'padding': <{'left': uint32 10, 'right': 10, 'top': 7, 'bottom': 7}>, 'keepRoundedCorners': <{'maximized': true, 'fullscreen': false}>, 'borderRadius': <uint32 12>, 'smoothing': <0.0>, 'borderColor': <(0.5, 0.5, 0.5, 1.0)>, 'enabled': <true>}>, 'msedge-_beplpalihhkbdaocmobeinjjbmagdkig-Default': <{'padding': <{'left': uint32 10, 'right': 10, 'top': 7, 'bottom': 7}>, 'keepRoundedCorners': <{'maximized': true, 'fullscreen': false}>, 'borderRadius': <uint32 12>, 'smoothing': <0.0>, 'borderColor': <(0.5, 0.5, 0.5, 1.0)>, 'enabled': <true>}>}
-global-rounded-corner-settings={'padding': <{'left': uint32 0, 'right': 0, 'top': 0, 'bottom': 0}>, 'keepRoundedCorners': <{'maximized': true, 'fullscreen': false}>, 'borderRadius': <uint32 12>, 'smoothing': <0.0>, 'borderColor': <(0.5, 0.5, 0.5, 1.0)>, 'enabled': <true>}
-settings-version=uint32 7
+custom-rounded-corner-settings={'microsoft-edge': <{'padding': <{'left': uint32 10, 'right': 10, 'top': 7, 'bottom': 7}>, 'keepRoundedCorners': <{'maximized': false, 'fullscreen': false}>, 'borderRadius': <uint32 24>, 'smoothing': <0.0>, 'borderColor': <(0.5, 0.5, 0.5, 1.0)>, 'enabled': <true>}>, 'msedge-_ompifgpmddkgmclendfeacglnodjjndh-Default': <{'padding': <{'left': uint32 10, 'right': 10, 'top': 7, 'bottom': 7}>, 'keepRoundedCorners': <{'maximized': false, 'fullscreen': false}>, 'borderRadius': <uint32 24>, 'smoothing': <0.0>, 'borderColor': <(0.5, 0.5, 0.5, 1.0)>, 'enabled': <true>}>, 'msedge-_faolnafnngnfdaknnbpnkhgohbobgegn-Default': <{'padding': <{'left': uint32 10, 'right': 10, 'top': 7, 'bottom': 7}>, 'keepRoundedCorners': <{'maximized': false, 'fullscreen': false}>, 'borderRadius': <uint32 24>, 'smoothing': <0.0>, 'borderColor': <(0.5, 0.5, 0.5, 1.0)>, 'enabled': <true>}>, 'msedge-_pjibgclleladliembfgfagdaldikeohf-Default': <{'padding': <{'left': uint32 10, 'right': 10, 'top': 7, 'bottom': 7}>, 'keepRoundedCorners': <{'maximized': false, 'fullscreen': false}>, 'borderRadius': <uint32 24>, 'smoothing': <0.0>, 'borderColor': <(0.5, 0.5, 0.5, 1.0)>, 'enabled': <true>}>, 'msedge-_beplpalihhkbdaocmobeinjjbmagdkig-Default': <{'padding': <{'left': uint32 10, 'right': 10, 'top': 7, 'bottom': 7}>, 'keepRoundedCorners': <{'maximized': false, 'fullscreen': false}>, 'borderRadius': <uint32 24>, 'smoothing': <0.0>, 'borderColor': <(0.5, 0.5, 0.5, 1.0)>, 'enabled': <true>}>, 'code': <{'padding': <{'left': uint32 0, 'right': 0, 'top': 0, 'bottom': 0}>, 'keepRoundedCorners': <{'maximized': true, 'fullscreen': false}>, 'borderRadius': <uint32 24>, 'smoothing': <0.0>, 'borderColor': <(0.5, 0.5, 0.5, 1.0)>, 'enabled': <true>}>, 'spotify': <{'padding': <{'left': uint32 0, 'right': 0, 'top': 0, 'bottom': 0}>, 'keepRoundedCorners': <{'maximized': false, 'fullscreen': false}>, 'borderRadius': <uint32 24>, 'smoothing': <0.29999999999999999>, 'borderColor': <(0.5, 0.5, 0.5, 1.0)>, 'enabled': <true>}>}
+focused-shadow={'verticalOffset': 2, 'horizontalOffset': 0, 'blurOffset': 18, 'spreadRadius': 0, 'opacity': 32}
+global-rounded-corner-settings={'padding': <{'left': uint32 0, 'right': 0, 'top': 0, 'bottom': 0}>, 'keepRoundedCorners': <{'maximized': false, 'fullscreen': false}>, 'borderRadius': <uint32 24>, 'smoothing': <0.29999999999999999>, 'borderColor': <(0.5, 0.5, 0.5, 1.0)>, 'enabled': <true>}
+settings-version=uint32 8
+skip-libhandy-app=false
+tweak-kitty-terminal=true
+unfocused-shadow={'verticalOffset': 1, 'horizontalOffset': 0, 'blurOffset': 10, 'spreadRadius': -1, 'opacity': 18}
 
 [smart-auto-move]
 activate-workspace=true
@@ -196,12 +203,6 @@ smart-home-universal={'_general_': {'indicator-position': '1'}}
 [spotify-controller]
 position='right'
 
-[system-monitor]
-position='right'
-show-download=false
-show-swap=false
-show-upload=false
-
 [tiling-assistant]
 activate-layout0=@as []
 activate-layout1=@as []
@@ -215,8 +216,9 @@ debugging-free-rects=@as []
 debugging-show-tiled-rects=@as []
 default-move-mode=0
 dynamic-keybinding-behavior=0
+focus-hint-color='rgb(46,124,247)'
 import-layout-examples=false
-last-version-installed=46
+last-version-installed=54
 overridden-settings={'org.gnome.mutter.edge-tiling': <@mb nothing>, 'org.gnome.mutter.keybindings.toggle-tiled-left': <@mb nothing>, 'org.gnome.mutter.keybindings.toggle-tiled-right': <@mb nothing>}
 restore-window=['<Super>Down']
 search-popup-layout=@as []
@@ -252,11 +254,11 @@ x-color-night='prefer-dark'
 x-cursor='MacTahoe-dark'
 x-cursor-night='MacTahoe-dark'
 x-gtk='MacTahoe-Dark-blue'
-x-gtk-night='MacTahoe-Dark-grey'
-x-icons='MacTahoe-blue'
-x-icons-night='MacTahoe-grey-dark'
+x-gtk-night='MacTahoe-Dark-blue'
+x-icons='MacTahoe-blue-dark'
+x-icons-night='MacTahoe-blue-dark'
 x-shell='MacTahoe-Dark-blue'
-x-shell-night='MacTahoe-Dark-grey'
+x-shell-night='MacTahoe-Dark-blue'
 x-stylesheet=false
 
 [user-theme]

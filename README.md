@@ -42,13 +42,21 @@ There are a few special files in the hierarchy.
 - **gnome/**: Running `script/bootstrap` symlinks GNOME Shell extensions from
   `gnome/extensions/` into `~/.local/share/gnome-shell/extensions/` and
   restores shell/extension settings from the tracked dconf dumps.
-  Running `script/install` (which discovers `gnome/install.sh`) will install
-  the **MacTahoe GTK theme**, **MacTahoe icon theme**, and
-  **CaskaydiaCove Nerd Font Mono**.
+  Running `script/install` (which discovers `gnome/install.sh`) installs
+  **CaskaydiaCove Nerd Font Mono** and app tweaks by default. The optional
+  MacTahoe GTK/icon theme is installed only when `DOTFILES_INSTALL_MACOS_THEME=1`
+  is set.
 - **microsoft/**: Running `script/install` (which discovers `microsoft/install.sh`)
-  sets up Microsoft Edge, VS Code, Edge PWA launchers, Intune, and YubiKey
-  support. Custom `.icns` icon files under `microsoft/icons/` are converted to
-  PNG and used to replace the default PWA icons.
+  sets up Microsoft Edge, VS Code, Intune, and YubiKey support. Custom Edge PWA
+  icon resources and desktop launchers are linked only when both
+  `DOTFILES_INSTALL_MACOS_THEME=1` and `DOTFILES_INSTALL_PWA_CUSTOM_ICONS=1` are
+  set, keeping those icons tied to the optional macOS-style theme.
+
+Optional macOS-style desktop setup:
+
+```sh
+DOTFILES_INSTALL_MACOS_THEME=1 DOTFILES_INSTALL_PWA_CUSTOM_ICONS=1 script/install
+```
 
 ## Git clone
 There are two "master" branches here: WSL and MacOS.
