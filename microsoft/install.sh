@@ -4,9 +4,10 @@
 #   - Microsoft signing keys & repos (prod + insiders-fast + edge)
 #   - Microsoft Edge
 #   - Visual Studio Code (snap)
-#   - Optional Edge PWA custom icons/launchers from dotfiles
 #   - Microsoft Identity Broker
 #   - Intune Company Portal
+#   - linux-entra-sso native connector, when available
+#   - Himmelblau stable test stack (without broker)
 #   - YubiKey / Smart Card support
 #   - Password policy (pam_pwquality)
 #   - Microsoft Azure VPN client
@@ -15,118 +16,82 @@
 #   1. Launch intune-portal and enroll your device
 #   2. Install Microsoft Defender for Endpoint via https://aka.ms/yourmsprotect
 #   3. Open Edge, sign in with your @microsoft.com account using YubiKey
+#   4. Run pam-auth-update and select Himmelblau unlock-only PAM mode
+#   5. Run aad-tool auth-test --name <local user>
 
 set -e
 
-DOTFILES_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+HIMMELBLAU_DOMAIN="${DOTFILES_HIMMELBLAU_DOMAIN:-microsoft.com}"
+HIMMELBLAU_LOCAL_USER="${DOTFILES_HIMMELBLAU_LOCAL_USER:-${SUDO_USER:-$(id -un)}}"
+HIMMELBLAU_UPN="${DOTFILES_HIMMELBLAU_UPN:-tstocchi@${HIMMELBLAU_DOMAIN}}"
+HIMMELBLAU_REPO_DISTRO="${DOTFILES_HIMMELBLAU_REPO_DISTRO:-ubuntu26.04}"
 
-is_enabled() {
-  case "$1" in
-    1|true|TRUE|yes|YES|y|Y|on|ON) return 0 ;;
-    *) return 1 ;;
-  esac
+os_id() {
+  . /etc/os-release
+  printf '%s' "$ID"
 }
 
-INSTALL_MACOS_THEME="${DOTFILES_INSTALL_MACOS_THEME:-${INSTALL_MACOS_THEME:-0}}"
-INSTALL_PWA_CUSTOM_ICONS="${DOTFILES_INSTALL_PWA_CUSTOM_ICONS:-${INSTALL_PWA_CUSTOM_ICONS:-0}}"
-
-restore_latest_backup() {
-  target=$1
-  latest_backup=
-
-  for backup in "${target}.backup-"*; do
-    [ -e "$backup" ] || continue
-    latest_backup=$backup
-  done
-
-  if [ -n "$latest_backup" ] && [ ! -e "$target" ]; then
-    mv "$latest_backup" "$target"
-    echo "  Restored $target from $latest_backup"
-  fi
-}
-
-reset_vscode_desktop_icon() {
-  code_desktop="$HOME/.local/share/applications/code_code.desktop"
-  packaged_code_desktop="/var/lib/snapd/desktop/applications/code_code.desktop"
-
-  [ -f "$code_desktop" ] || return 0
-
-  if ! grep -q "^Icon=$HOME/.local/share/icons/MacTahoe" "$code_desktop"; then
+configure_himmelblau_os_override() {
+  if [ "$(os_id)" = "ubuntu" ]; then
     return 0
   fi
 
-  if [ -f "$packaged_code_desktop" ]; then
-    code_icon=$(grep -m 1 '^Icon=' "$packaged_code_desktop" | cut -d= -f2-)
-  else
-    code_icon=code
-  fi
+  echo "  Configuring Himmelblau Ubuntu policy compatibility override…"
+  sudo install -d -m 755 /etc/systemd/system/himmelblaud-tasks.service.d
 
-  sed -i "s|^Icon=$HOME/.local/share/icons/MacTahoe.*|Icon=$code_icon|" "$code_desktop"
-  echo "  Reset VS Code desktop icon to $code_icon."
+  sudo tee /var/lib/fake-os-release > /dev/null <<'EOF'
+PRETTY_NAME="Ubuntu 22.04.4 LTS"
+NAME="Ubuntu"
+VERSION_ID="22.04"
+VERSION="22.04.4 LTS (Jammy Jellyfish)"
+VERSION_CODENAME=jammy
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=jammy
+EOF
+
+  sudo tee /etc/systemd/system/himmelblaud-tasks.service.d/override.conf > /dev/null <<'EOF'
+[Service]
+BindReadOnlyPaths=/var/lib/fake-os-release:/usr/lib/os-release
+EOF
+
+  if command -v systemctl >/dev/null 2>&1 && systemctl list-unit-files >/dev/null 2>&1; then
+    sudo systemctl daemon-reload
+  fi
 }
 
-reset_edge_pwa_hicolor_icons() {
-  [ -d "$PWA_TARGET_DIR" ] || return 0
-  [ -d "$PWA_DESKTOP_TARGET_DIR" ] || return 0
+configure_himmelblau() {
+  echo "  Configuring Himmelblau for ${HIMMELBLAU_UPN}…"
+  sudo install -d -m 755 /etc/himmelblau
 
-  for desktop in "$PWA_DESKTOP_TARGET_DIR"/msedge-*.desktop; do
-    [ -f "$desktop" ] || [ -L "$desktop" ] || continue
+  sudo tee /etc/himmelblau/himmelblau.conf > /dev/null <<EOF
+[global]
+domain = ${HIMMELBLAU_DOMAIN}
+enable_experimental_mfa = true
+enable_experimental_passwordless_fido = true
+apply_policy = true
+enable_experimental_intune_custom_compliance = true
+hsm_type = tpm
+idmap_range = 1000000-1999999
+join_type = register
+user_map_file = /etc/himmelblau/user-map
+# These default options are required on Debian/Ubuntu. See `man himmelblau.conf`
+# for an explanation of these parameters. `home_attr` and `home_alias` need to
+# match, but don't necessarily need to be set to `CN`.
+local_groups = users
+home_attr = CN
+home_alias = CN
+use_etc_skel = true
+EOF
 
-    icon_name=$(grep -m 1 '^Icon=msedge-' "$desktop" | cut -d= -f2-)
-    [ -n "$icon_name" ] || continue
+  echo "${HIMMELBLAU_LOCAL_USER}:${HIMMELBLAU_UPN}" | sudo tee /etc/himmelblau/user-map > /dev/null
+  sudo chmod 600 /etc/himmelblau/user-map
 
-    app_id=${icon_name#msedge-}
-    app_id=${app_id%-Default}
-    icon_dir="$PWA_TARGET_DIR/$app_id/Icons"
-    [ -d "$icon_dir" ] || continue
-
-    for icon in "$icon_dir"/*.png; do
-      [ -f "$icon" ] || continue
-      size=$(basename "$icon" .png)
-
-      case "$size" in
-        *[!0-9]*|'') continue ;;
-      esac
-
-      hicolor_dir="$HOME/.local/share/icons/hicolor/${size}x${size}/apps"
-      mkdir -p "$hicolor_dir"
-      cp "$icon" "$hicolor_dir/$icon_name.png"
-    done
-  done
-}
-
-cleanup_custom_desktop_icons() {
-  reset_vscode_desktop_icon
-
-  if [ -L "$PWA_TARGET_DIR" ] && [ "$(readlink "$PWA_TARGET_DIR")" = "$PWA_DOTFILES_DIR" ]; then
-    rm "$PWA_TARGET_DIR"
-    echo "  Removed custom Edge PWA manifest resources symlink."
-    restore_latest_backup "$PWA_TARGET_DIR"
-  fi
-
-  for src in "$PWA_DESKTOP_DOTFILES_DIR"/msedge-*.desktop; do
-    [ -e "$src" ] || continue
-    dst="$PWA_DESKTOP_TARGET_DIR/$(basename "$src")"
-
-    if [ -L "$dst" ] && [ "$(readlink "$dst")" = "$src" ]; then
-      rm "$dst"
-      echo "  Removed custom launcher symlink $dst."
-      restore_latest_backup "$dst"
-    fi
-  done
-
-  reset_edge_pwa_hicolor_icons
-  refresh_desktop_caches
-}
-
-refresh_desktop_caches() {
-  if command -v update-desktop-database >/dev/null 2>&1; then
-    update-desktop-database "$HOME/.local/share/applications" >/dev/null 2>&1 || true
-  fi
-
-  if command -v gtk-update-icon-cache >/dev/null 2>&1; then
-    gtk-update-icon-cache -q "$HOME/.local/share/icons/hicolor" >/dev/null 2>&1 || true
-  fi
+  configure_himmelblau_os_override
 }
 
 # ── Microsoft signing keys & repos ──────────────────────────────────────────
@@ -151,6 +116,15 @@ sudo sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] h
 
 sudo apt update
 
+# ── Himmelblau stable repo ──────────────────────────────────────────────────
+
+echo "  Installing Himmelblau signing key and repo…"
+sudo apt upgrade -y
+curl -fsSL https://packages.himmelblau-idm.org/himmelblau.asc | sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/himmelblau.gpg
+echo "deb [arch=amd64] https://packages.himmelblau-idm.org/stable/latest/deb/${HIMMELBLAU_REPO_DISTRO}/ ./" | sudo tee /etc/apt/sources.list.d/himmelblau.list > /dev/null
+
+sudo apt update
+
 # ── Microsoft Edge ──────────────────────────────────────────────────────────
 
 echo "  Installing Microsoft Edge…"
@@ -169,79 +143,6 @@ else
   echo "  snap command not found, skipping VS Code installation."
 fi
 
-# ── Optional Edge PWA custom icons and launchers ────────────────────────────
-
-PWA_TARGET_DIR="$HOME/.config/microsoft-edge/Default/Web Applications/Manifest Resources"
-PWA_DOTFILES_DIR="$DOTFILES_ROOT/microsoft/edge-pwas"
-PWA_DESKTOP_DOTFILES_DIR="$DOTFILES_ROOT/microsoft/edge-pwa-desktop-files"
-PWA_DESKTOP_TARGET_DIR="$HOME/.local/share/applications"
-
-if is_enabled "$INSTALL_PWA_CUSTOM_ICONS" && is_enabled "$INSTALL_MACOS_THEME"; then
-
-  # ── Edge PWA manifest resources ───────────────────────────────────────────
-
-  echo "  Linking Edge PWA manifest resources…"
-  mkdir -p "$PWA_DOTFILES_DIR"
-  mkdir -p "$(dirname "$PWA_TARGET_DIR")"
-
-  if [ ! -L "$PWA_TARGET_DIR" ] && [ -d "$PWA_TARGET_DIR" ] && [ -z "$(ls -A "$PWA_DOTFILES_DIR" 2>/dev/null)" ]; then
-    echo "  Seeding dotfiles PWA store from current profile…"
-    cp -a "$PWA_TARGET_DIR/." "$PWA_DOTFILES_DIR/"
-  fi
-
-  if [ -L "$PWA_TARGET_DIR" ]; then
-    echo "  Edge PWA manifest resources already linked, skipping."
-  else
-    if [ -e "$PWA_TARGET_DIR" ]; then
-      BACKUP_PATH="${PWA_TARGET_DIR}.backup-$(date +%Y%m%d%H%M%S)"
-      mv "$PWA_TARGET_DIR" "$BACKUP_PATH"
-      echo "  Backed up existing PWA manifest resources to $BACKUP_PATH"
-    fi
-    ln -s "$PWA_DOTFILES_DIR" "$PWA_TARGET_DIR"
-    echo "  Linked Edge PWA manifest resources."
-  fi
-
-  # ── Edge PWA desktop launchers ────────────────────────────────────────────
-
-  echo "  Linking Edge PWA desktop launchers…"
-  mkdir -p "$PWA_DESKTOP_DOTFILES_DIR"
-  mkdir -p "$PWA_DESKTOP_TARGET_DIR"
-
-  if [ -z "$(ls -A "$PWA_DESKTOP_DOTFILES_DIR" 2>/dev/null)" ]; then
-    echo "  Seeding dotfiles PWA desktop launchers from current profile…"
-    for file in "$PWA_DESKTOP_TARGET_DIR"/msedge-*.desktop; do
-      [ -e "$file" ] || continue
-      cp -a "$file" "$PWA_DESKTOP_DOTFILES_DIR/"
-    done
-  fi
-
-  for src in "$PWA_DESKTOP_DOTFILES_DIR"/msedge-*.desktop; do
-    [ -e "$src" ] || continue
-    dst="$PWA_DESKTOP_TARGET_DIR/$(basename "$src")"
-
-    if [ -L "$dst" ] && [ "$(readlink "$dst")" = "$src" ]; then
-      continue
-    fi
-
-    if [ -L "$dst" ]; then
-      rm "$dst"
-    elif [ -e "$dst" ]; then
-      BACKUP_PATH="${dst}.backup-$(date +%Y%m%d%H%M%S)"
-      mv "$dst" "$BACKUP_PATH"
-      echo "  Backed up existing launcher to $BACKUP_PATH"
-    fi
-
-    ln -s "$src" "$dst"
-  done
-  echo "  Linked Edge PWA desktop launchers."
-elif is_enabled "$INSTALL_PWA_CUSTOM_ICONS"; then
-  echo "  Skipping Edge PWA custom icons because DOTFILES_INSTALL_MACOS_THEME is not enabled."
-  cleanup_custom_desktop_icons
-else
-  echo "  Skipping Edge PWA custom icons. Set DOTFILES_INSTALL_PWA_CUSTOM_ICONS=1 with DOTFILES_INSTALL_MACOS_THEME=1 to enable them."
-  cleanup_custom_desktop_icons
-fi
-
 # ── Microsoft Identity Broker ───────────────────────────────────────────────
 
 echo "  Installing Microsoft Identity Broker…"
@@ -251,6 +152,28 @@ sudo apt install -y microsoft-identity-broker
 
 echo "  Installing Intune Company Portal…"
 sudo apt install -y intune-portal
+
+# ── linux-entra-sso native connector ────────────────────────────────────────
+
+echo "  Installing linux-entra-sso native connector, if available…"
+if apt-cache show linux-entra-sso >/dev/null 2>&1; then
+  sudo apt install -y linux-entra-sso
+else
+  echo "  linux-entra-sso package not available from configured apt sources; install the native connector manually if needed."
+fi
+
+# ── Himmelblau ──────────────────────────────────────────────────────────────
+
+configure_himmelblau
+
+echo "  Installing Himmelblau without broker…"
+sudo apt install -y himmelblau pam-himmelblau nss-himmelblau
+
+if command -v systemctl >/dev/null 2>&1 && systemctl list-unit-files >/dev/null 2>&1; then
+  sudo systemctl enable --now himmelblaud himmelblaud-tasks
+else
+  echo "  systemd is not available; start himmelblaud and himmelblaud-tasks manually after install."
+fi
 
 # ── YubiKey / Smart Card ────────────────────────────────────────────────────
 
@@ -295,4 +218,13 @@ echo "  Manual steps remaining:"
 echo "    1. Run: /usr/bin/intune-portal   — enroll your device"
 echo "    2. Install MDE from https://aka.ms/yourmsprotect"
 echo "    3. Open Edge, sign in with @microsoft.com using YubiKey"
+echo "    4. Ensure your YubiKey is enrolled as a passkey: https://mysignins.microsoft.com/security-info"
+echo "       Also check https://aka.ms/fido2 and https://aka.ms/fido2optin"
+echo "    5. Install the linux-entra-sso browser extension for Chrome/Firefox"
+echo "    6. Run: sudo pam-auth-update"
+echo "       Deselect: Azure Entra Id authentication"
+echo "       Select:   Azure Entra Id unlock"
+echo "    7. Run: aad-tool auth-test --name ${HIMMELBLAU_LOCAL_USER}"
+echo "       Use the same PIN/password as your local user so TPM unlock can happen on login."
+echo "    8. Once Himmelblau compliance is confirmed, install himmelblau-broker manually to switch away from intune/identity-broker."
 echo ""

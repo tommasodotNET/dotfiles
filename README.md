@@ -47,15 +47,16 @@ There are a few special files in the hierarchy.
   MacTahoe GTK/icon theme is installed only when `DOTFILES_INSTALL_MACOS_THEME=1`
   is set.
 - **microsoft/**: Running `script/install` (which discovers `microsoft/install.sh`)
-  sets up Microsoft Edge, VS Code, Intune, and YubiKey support. Custom Edge PWA
-  icon resources and desktop launchers are linked only when both
-  `DOTFILES_INSTALL_MACOS_THEME=1` and `DOTFILES_INSTALL_PWA_CUSTOM_ICONS=1` are
-  set, keeping those icons tied to the optional macOS-style theme.
+  sets up Microsoft Edge, VS Code, Intune, Microsoft Identity Broker,
+  linux-entra-sso's native connector when available, Himmelblau stable without
+  the broker package, Azure VPN, and YubiKey support. Himmelblau defaults to
+  mapping the current local user to `tstocchi@microsoft.com`; override that with
+  `DOTFILES_HIMMELBLAU_UPN`.
 
 Optional macOS-style desktop setup:
 
 ```sh
-DOTFILES_INSTALL_MACOS_THEME=1 DOTFILES_INSTALL_PWA_CUSTOM_ICONS=1 script/install
+DOTFILES_INSTALL_MACOS_THEME=1 script/install
 ```
 
 ## Git clone

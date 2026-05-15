@@ -15,7 +15,7 @@ style-dialogs=2
 
 [blur-my-shell/applications]
 blacklist=['Plank', 'com.desktop.ding', 'Conky', 'gjs', 'msedge-_faolnafnngnfdaknnbpnkhgohbobgegn-Default', 'msedge-_beplpalihhkbdaocmobeinjjbmagdkig-Default', 'msedge-_pjibgclleladliembfgfagdaldikeohf-Default', 'microsoft-edge', 'msedge-_ompifgpmddkgmclendfeacglnodjjndh-Default']
-blur=true
+blur=false
 blur-on-overview=false
 dynamic-opacity=false
 enable-all=true
@@ -28,7 +28,7 @@ static-blur=false
 pipeline='pipeline_default'
 
 [blur-my-shell/dash-to-dock]
-blur=true
+blur=false
 brightness=0.59999999999999998
 override-background=false
 pipeline='pipeline_default_rounded'
@@ -44,6 +44,7 @@ blur-original-panel=true
 pipeline='pipeline_default'
 
 [blur-my-shell/overview]
+blur=true
 pipeline='pipeline_default'
 style-components=0
 
@@ -64,19 +65,19 @@ brightness=0.59999999999999998
 sigma=30
 
 [caffeine]
-cli-toggle=true
+cli-toggle=false
 enable-mpris=true
-indicator-position-max=4
+indicator-position-max=2
 restore-state=true
 show-indicator='always'
-user-enabled=true
+user-enabled=false
 
 [clipboard-indicator]
 move-item-first=true
 paste-on-select=true
 
 [dash-to-dock]
-apply-custom-theme=false
+apply-custom-theme=true
 apply-glossy-effect=false
 background-opacity=0.040000000000000001
 click-action='focus-minimize-or-previews'
@@ -85,7 +86,7 @@ custom-theme-customize-running-dots=false
 custom-theme-running-dots-border-color='rgb(255,255,255)'
 custom-theme-running-dots-color='rgb(255,255,255)'
 custom-theme-shrink=false
-dash-max-icon-size=46
+dash-max-icon-size=48
 disable-overview-on-startup=true
 dock-fixed=false
 dock-position='BOTTOM'
@@ -114,14 +115,50 @@ unity-backlit-items=false
 check-x11wayland=true
 show-home=false
 
+[gsconnect]
+devices=['2bd902e2e3bb4961af0c0dad5336c117']
+enabled=true
+keep-alive-when-locked=false
+missing-openssl=false
+name='tommasostocchi'
+
+[gsconnect/device/2bd902e2e3bb4961af0c0dad5336c117]
+certificate-pem='-----BEGIN CERTIFICATE-----\nMIIBizCCATGgAwIBAgIBATAKBggqhkjOPQQDBDBPMSkwJwYDVQQDDCAyYmQ5MDJl\nMmUzYmI0OTYxYWYwYzBkYWQ1MzM2YzExNzEUMBIGA1UECwwLS0RFIENvbm5lY3Qx\nDDAKBgNVBAoMA0tERTAeFw0yNTA0MDUyMjAwMDBaFw0zNjA0MDUyMjAwMDBaME8x\nKTAnBgNVBAMMIDJiZDkwMmUyZTNiYjQ5NjFhZjBjMGRhZDUzMzZjMTE3MRQwEgYD\nVQQLDAtLREUgQ29ubmVjdDEMMAoGA1UECgwDS0RFMFkwEwYHKoZIzj0CAQYIKoZI\nzj0DAQcDQgAEDV7iaCsoOQZlN5MoKBs2i0sbtosT/D/0k7MJZnDqpXd1BcoqKfvH\nEwkPE1c01mH7IeoVStoBMpfoLOf8Dsg8iDAKBggqhkjOPQQDBANIADBFAiEA73uV\nT3L4PPgxLO/Hap+AB0v7hN2L2K3FI1aSQEqjFPQCIBsAFY4I7b5nRKjV5xh9+zkB\nUJqXGOFhzdXJA6VSG3Z2\n-----END CERTIFICATE-----\n'
+incoming-capabilities=['kdeconnect.battery', 'kdeconnect.clipboard', 'kdeconnect.clipboard.connect', 'kdeconnect.contacts.request_all_uids_timestamps', 'kdeconnect.contacts.request_vcards_by_uid', 'kdeconnect.findmyphone.request', 'kdeconnect.mousepad.keyboardstate', 'kdeconnect.mousepad.request', 'kdeconnect.mpris', 'kdeconnect.mpris.request', 'kdeconnect.notification', 'kdeconnect.notification.action', 'kdeconnect.notification.reply', 'kdeconnect.notification.request', 'kdeconnect.ping', 'kdeconnect.runcommand', 'kdeconnect.sftp.request', 'kdeconnect.share.request', 'kdeconnect.share.request.update', 'kdeconnect.sms.request', 'kdeconnect.sms.request_attachment', 'kdeconnect.sms.request_conversation', 'kdeconnect.sms.request_conversations', 'kdeconnect.systemvolume', 'kdeconnect.telephony.request_mute']
+last-connection='lan://192.168.1.173:1716'
+name='Galaxy Z Flip7'
+outgoing-capabilities=['kdeconnect.battery', 'kdeconnect.clipboard', 'kdeconnect.clipboard.connect', 'kdeconnect.connectivity_report', 'kdeconnect.contacts.response_uids_timestamps', 'kdeconnect.contacts.response_vcards', 'kdeconnect.digitizer', 'kdeconnect.digitizer.session', 'kdeconnect.findmyphone.request', 'kdeconnect.mousepad.echo', 'kdeconnect.mousepad.keyboardstate', 'kdeconnect.mousepad.request', 'kdeconnect.mpris', 'kdeconnect.mpris.request', 'kdeconnect.notification', 'kdeconnect.notification.request', 'kdeconnect.ping', 'kdeconnect.presenter', 'kdeconnect.runcommand.request', 'kdeconnect.sftp', 'kdeconnect.share.request', 'kdeconnect.sms.attachment_file', 'kdeconnect.sms.messages', 'kdeconnect.systemvolume.request', 'kdeconnect.telephony']
+paired=true
+supported-plugins=['battery', 'clipboard', 'connectivity_report', 'contacts', 'findmyphone', 'mousepad', 'mpris', 'notification', 'ping', 'presenter', 'runcommand', 'sftp', 'share', 'sms', 'systemvolume', 'telephony']
+type='phone'
+
+[gsconnect/device/2bd902e2e3bb4961af0c0dad5336c117/plugin/battery]
+custom-battery-notification-value=uint32 80
+
+[gsconnect/device/2bd902e2e3bb4961af0c0dad5336c117/plugin/clipboard]
+receive-content=true
+send-content=true
+
+[gsconnect/device/2bd902e2e3bb4961af0c0dad5336c117/plugin/notification]
+applications='{"Printers":{"iconName":"org.gnome.Settings-printers-symbolic","enabled":true},"Events and Tasks Reminders":{"iconName":"org.gnome.Evolution-alarm-notify","enabled":true},"Solaar":{"iconName":"solaar","enabled":true},"Zenity":{"iconName":"application-x-executable","enabled":true},"Snapd User Session Agent":{"iconName":"/usr/share/snapd/snapcraft-logo-bird.svg","enabled":true},"Disks":{"iconName":"org.gnome.DiskUtility","enabled":true},"NetworkManager Applet":{"iconName":"nm-device-wireless","enabled":true},"Software":{"iconName":"org.gnome.Software","enabled":true},"Date & Time":{"iconName":"org.gnome.Settings-time-symbolic","enabled":true},"Power":{"iconName":"org.gnome.Settings-power-symbolic","enabled":true},"Disk Usage Analyzer":{"iconName":"org.gnome.baobab","enabled":true},"Color":{"iconName":"org.gnome.Settings-color-symbolic","enabled":true},"Files":{"iconName":"org.gnome.Nautilus","enabled":true},"Clocks":{"iconName":"org.gnome.clocks","enabled":true},"Microsoft Edge":{"iconName":"file:///tmp/com.microsoft.Edge.scoped_dir.FzPoRq/logo.png","enabled":true},"Beeper":{"iconName":"","enabled":true},"App Updates":{"iconName":"snapd-desktop-integration_dialog-question","enabled":true},"discord":{"iconName":"","enabled":true},"Telegram":{"iconName":"","enabled":true},"Spotify":{"iconName":"com.spotify.Client","enabled":true},"Online Accounts":{"iconName":"org.gnome.goa-daemon-symbolic","enabled":true},"Color Management":{"iconName":"org.gnome.Settings-color-symbolic","enabled":true}}'
+
+[gsconnect/device/2bd902e2e3bb4961af0c0dad5336c117/plugin/share]
+launch-urls=true
+receive-directory='/home/tommasostocchi/Downloads'
+
+[gsconnect/preferences]
+window-maximized=false
+window-size=(853, 550)
+
 [just-perfection]
 accessibility-menu=true
 clock-menu-position=1
 clock-menu-position-offset=20
 dash-icon-size=0
 invert-calendar-column-items=false
-notification-banner-position=1
+notification-banner-position=2
 panel=true
+panel-button-padding-size=2
 panel-in-overview=true
 power-icon=true
 quick-settings=true
@@ -141,29 +178,8 @@ window-picker-icon=true
 workspace=true
 workspaces-in-app-grid=true
 
-[kiwi]
-add-username-to-quick-menu=false
-battery-percentage=false
-button-size='normal'
-button-type='titlebuttons'
-enable-app-window-buttons=true
-enable-firefox-styling=true
-enable-launchpad-app=false
-move-calendar-right=true
-move-window-to-new-workspace=false
-overview-wallpaper-background=false
-panel-color-inherit=false
-panel-transparency=true
-panel-transparency-level=1
-show-window-controls=false
-show-window-title=false
-transparent-move=false
-
-[kiwimenu]
-hide-lock-button=true
-hide-power-button=true
-hide-settings-button=true
-icon=18
+[lennart-k/rounded_corners]
+corner-radius=24
 
 [rounded-window-corners-reborn]
 blacklist=['BeeperTexts']
@@ -184,6 +200,7 @@ ignore-workspace=false
 match-threshold=0.69999999999999996
 overrides='{}'
 save-frequency=1000
+saved-windows='{"msedge-_faolnafnngnfdaknnbpnkhgohbobgegn-Default":[{"id":1094858572,"hash":1094858572,"sequence":407,"title":"Outlook (PWA) - Inbox - Tommaso Stocchi - Outlook","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":3582,"y":198,"width":1308,"height":810,"occupied":false}],"microsoft-edge":[{"id":2366532987,"hash":2366532987,"sequence":123,"title":"global-azure-26 resources - Work - Microsoft\u200b Edge","workspace":0,"maximized":3,"fullscreen":false,"above":false,"monitor":0,"on_all_workspaces":true,"x":0,"y":160,"width":1920,"height":1280,"occupied":false},{"id":1094858331,"hash":1094858331,"sequence":166,"title":"Global Azure Milano 2026 - OneDrive - [InPrivate] - Microsoft\u200b Edge","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":0,"on_all_workspaces":false,"x":2357,"y":288,"width":1755,"height":1130,"occupied":false},{"id":2366532874,"hash":2366532874,"sequence":10,"title":"agent-framework/python/samples/05-end-to-end/hosted_agents/agent_with_local_tools/main.py at main · microsoft/agent-framework - Work - Microsoft\u200b Edge","workspace":0,"maximized":3,"fullscreen":false,"above":false,"monitor":0,"on_all_workspaces":true,"x":0,"y":160,"width":1920,"height":1280,"occupied":false},{"id":2366533058,"hash":2366533058,"sequence":194,"title":"i manage themes in user theme x extension in extensions manager on gnome... - Work - Microsoft\u200b Edge","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2464,"y":367,"width":1448,"height":1163,"occupied":false},{"id":198679458,"hash":198679458,"sequence":13,"title":"i manage themes in user theme x extension in extensions manager on gnome... - Work - Microsoft\u200b Edge","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":3341,"y":329,"width":1448,"height":1163,"occupied":false},{"id":3704418845,"hash":3704418845,"sequence":6,"title":"New tab - Work - Microsoft\u200b Edge","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2732,"y":304,"width":1448,"height":1163,"occupied":false}],"msedge-_beplpalihhkbdaocmobeinjjbmagdkig-Default":[{"id":2366532977,"hash":2366532977,"sequence":113,"title":"Microsoft OneDrive - Home - OneDrive","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2086,"y":259,"width":1538,"height":1210,"occupied":false}],"msedge-_ompifgpmddkgmclendfeacglnodjjndh-Default":[{"id":1094858166,"hash":1094858166,"sequence":1,"title":"Microsoft Teams (PWA) - Chat | [INT MS] CSU Supporto TVA | Microsoft Teams","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":3165,"y":195,"width":1700,"height":941,"occupied":false},{"id":3704418840,"hash":3704418840,"sequence":1,"title":"Microsoft Teams (PWA) - (2) Calendar | Calendar | Microsoft Teams","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2376,"y":357,"width":1700,"height":941,"occupied":false},{"id":1242620963,"hash":1242620963,"sequence":1,"title":"Microsoft Teams (PWA) - Microsoft Teams","workspace":0,"maximized":3,"fullscreen":false,"above":false,"monitor":0,"on_all_workspaces":false,"x":0,"y":44,"width":1440,"height":916,"occupied":false}],"com.mattjakeman.ExtensionManager":[{"id":3704418847,"hash":3704418847,"sequence":8,"title":"Extension Manager","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2613,"y":528,"width":1199,"height":949,"occupied":false}],"gnome-terminal-server":[{"id":1094858383,"hash":1094858383,"sequence":218,"title":"tommasostocchi@tommasostocchi:~/repos/tommasostocchi/ski-resort-demo","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":0,"on_all_workspaces":false,"x":3822,"y":108,"width":1098,"height":620,"occupied":false},{"id":1094858424,"hash":1094858424,"sequence":259,"title":"tommasostocchi@tommasostocchi:~/repos/tommasostocchi/global-azure-26","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":0,"on_all_workspaces":false,"x":2907,"y":576,"width":1098,"height":620,"occupied":false},{"id":1094858542,"hash":1094858542,"sequence":377,"title":"tommasostocchi@tommasostocchi:~/repos/tommasostocchi/freecode","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2907,"y":576,"width":1098,"height":620,"occupied":false},{"id":1094858565,"hash":1094858565,"sequence":400,"title":"tommasostocchi@tommasostocchi:~/repos/01s/roma-capitale-qa-chatbot","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2907,"y":576,"width":1098,"height":620,"occupied":false},{"id":1094858582,"hash":1094858582,"sequence":417,"title":"tommasostocchi@tommasostocchi:~/repos/tommasostocchi/ski-resort-demo","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2907,"y":576,"width":1098,"height":620,"occupied":false},{"id":2366532872,"hash":2366532872,"sequence":8,"title":"tommasostocchi@tommasostocchi:~/repos/tommasostocchi/ski-resort-demo","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2805,"y":517,"width":1755,"height":620,"occupied":false},{"id":2366533038,"hash":2366533038,"sequence":174,"title":"tommasostocchi@tommasostocchi:~/repos/Orchis-theme","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2203,"y":414,"width":1098,"height":620,"occupied":false}],"org.gnome.SystemMonitor":[{"id":1094858561,"hash":1094858561,"sequence":396,"title":"System Monitor","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2882,"y":538,"width":1147,"height":695,"occupied":false}],"BeeperTexts":[{"id":2366533021,"hash":2366533021,"sequence":157,"title":"Beeper","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2914,"y":481,"width":1083,"height":810,"occupied":false}],"org.gnome.Nautilus":[{"id":1094858410,"hash":1094858410,"sequence":245,"title":"Downloads","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":0,"on_all_workspaces":false,"x":3362,"y":574,"width":1440,"height":793,"occupied":false},{"id":1094858378,"hash":1094858378,"sequence":213,"title":".ssh","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":0,"on_all_workspaces":false,"x":2736,"y":489,"width":1440,"height":793,"occupied":false},{"id":1094858477,"hash":1094858477,"sequence":312,"title":"applications","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2736,"y":489,"width":1440,"height":793,"occupied":false},{"id":1094858497,"hash":1094858497,"sequence":332,"title":"freecode","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2736,"y":489,"width":1440,"height":793,"occupied":false},{"id":2366532936,"hash":2366532936,"sequence":72,"title":"global-azure-26","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2736,"y":489,"width":1440,"height":793,"occupied":false},{"id":2366533036,"hash":2366533036,"sequence":172,"title":".themes","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2736,"y":489,"width":1440,"height":793,"occupied":false},{"id":198679452,"hash":198679452,"sequence":7,"title":"Home","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2879,"y":575,"width":1440,"height":793,"occupied":false},{"id":198679457,"hash":198679457,"sequence":12,"title":"gnome-shell","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":3404,"y":364,"width":1440,"height":793,"occupied":false}],"org.gnome.Settings":[{"id":198679453,"hash":198679453,"sequence":8,"title":"Settings","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2736,"y":427,"width":1440,"height":916,"occupied":false}],"gsconnect-preferences":[{"id":1094858356,"hash":1094858356,"sequence":191,"title":"Galaxy Z Flip7","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":0,"on_all_workspaces":false,"x":3075,"y":587,"width":761,"height":598,"occupied":false}],"org.gnome.tweaks":[{"id":1094858374,"hash":1094858374,"sequence":209,"title":"GNOME Tweaks","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":0,"on_all_workspaces":false,"x":2966,"y":566,"width":980,"height":640,"occupied":false}],"org.gnome.TextEditor":[{"id":1094858385,"hash":1094858385,"sequence":220,"title":"https git 01s it semplice (Draft) - Text Editor","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":0,"on_all_workspaces":false,"x":2823,"y":449,"width":1011,"height":1119,"occupied":false},{"id":1094858480,"hash":1094858480,"sequence":315,"title":"msedge-_ompifgpmddkgmclendfeacglnodjjndh-Default.desktop (~/.local/share/applications) - Text Editor","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":3219,"y":378,"width":1011,"height":1119,"occupied":false},{"id":1094858498,"hash":1094858498,"sequence":333,"title":"msedge-_ompifgpmddkgmclendfeacglnodjjndh-Default.desktop (~/.local/share/applications) - Text Editor","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2950,"y":326,"width":1011,"height":1119,"occupied":false},{"id":1094858613,"hash":1094858613,"sequence":448,"title":"msedge-_ompifgpmddkgmclendfeacglnodjjndh-Default.desktop (~/.local/share/applications) - Text Editor","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":0,"on_all_workspaces":true,"x":454,"y":240,"width":1011,"height":1119,"occupied":false}],"Code":[{"id":2366532871,"hash":2366532871,"sequence":7,"title":"main.py - global-azure-26 - Visual Studio Code","workspace":0,"maximized":3,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":1920,"y":44,"width":3072,"height":1684,"occupied":false},{"id":1094858566,"hash":1094858566,"sequence":401,"title":"qa.system - roma-capitale-qa-chatbot - Visual Studio Code","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2789,"y":402,"width":1440,"height":900,"occupied":false},{"id":2366532873,"hash":2366532873,"sequence":9,"title":"apphost.cs - ski-resort-demo - Visual Studio Code","workspace":0,"maximized":3,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":1920,"y":44,"width":3072,"height":1684,"occupied":false}],"msedge-_pjibgclleladliembfgfagdaldikeohf-Default":[{"id":1094858391,"hash":1094858391,"sequence":226,"title":"Spotify – Liked Songs","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2622,"y":310,"width":1668,"height":1149,"occupied":false}],"Podman Desktop":[{"id":2366533018,"hash":2366533018,"sequence":154,"title":"Podman Desktop","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2933,"y":442,"width":1557,"height":973,"occupied":false}],"":[{"id":1094858505,"hash":1094858505,"sequence":340,"title":"teams.cloud.microsoft is sharing your screen.","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":0,"on_all_workspaces":true,"x":674,"y":764,"width":572,"height":71,"occupied":false},{"id":1094858624,"hash":1094858624,"sequence":459,"title":"","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":0,"on_all_workspaces":true,"x":871,"y":780,"width":177,"height":40,"occupied":false}],"org.gnome.Calendar":[{"id":1094858507,"hash":1094858507,"sequence":342,"title":"Calendar","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2545,"y":441,"width":1821,"height":889,"occupied":false}],"discord":[{"id":3704418841,"hash":3704418841,"sequence":2,"title":"Discord Updater","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":0,"on_all_workspaces":true,"x":810,"y":625,"width":300,"height":350,"occupied":false},{"id":2366533029,"hash":2366533029,"sequence":165,"title":"#💻│vscode-extension | Aspire 💫 - Discord","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2099,"y":505,"width":1280,"height":720,"occupied":false},{"id":3704418844,"hash":3704418844,"sequence":5,"title":"Friends - Discord","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":2099,"y":505,"width":1280,"height":720,"occupied":false}],"gcr-prompter":[{"id":3000715809,"hash":3000715809,"sequence":4,"title":"Unlock Login Keyring","workspace":0,"maximized":0,"fullscreen":false,"above":false,"monitor":1,"on_all_workspaces":false,"x":3168,"y":783,"width":575,"height":206,"occupied":false}]}'
 startup-delay=2500
 sync-frequency=100
 sync-mode='RESTORE'
@@ -245,22 +262,4 @@ tile-topright-quarter-ignore-ta=@as []
 tiling-popup-all-workspace=true
 toggle-always-on-top=@as []
 toggle-tiling-popup=@as []
-
-[user-theme-x]
-name='MacTahoe-Dark-blue'
-x-autoswitch=true
-x-color='prefer-dark'
-x-color-night='prefer-dark'
-x-cursor='MacTahoe-dark'
-x-cursor-night='MacTahoe-dark'
-x-gtk='MacTahoe-Dark-blue'
-x-gtk-night='MacTahoe-Dark-blue'
-x-icons='MacTahoe-blue-dark'
-x-icons-night='MacTahoe-blue-dark'
-x-shell='MacTahoe-Dark-blue'
-x-shell-night='MacTahoe-Dark-blue'
-x-stylesheet=false
-
-[user-theme]
-name='Orchis-Grey-Dark'
 
