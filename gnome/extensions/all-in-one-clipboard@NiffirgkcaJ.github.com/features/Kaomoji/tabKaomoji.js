@@ -1,0 +1,183 @@
+import Clutter from 'gi://Clutter';
+import GObject from 'gi://GObject';
+import St from 'gi://St';
+import { gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
+
+import { CategorizedItemViewer } from '../../shared/utilities/utilityCategorizedItemViewer.js';
+import { clipboardSetText } from '../../shared/utilities/utilityClipboard.js';
+import { GlobalActionService } from '../../shared/services/serviceAction.js';
+import { IOJson } from '../../shared/utilities/utilityIO.js';
+import { Logger } from '../../shared/utilities/utilityLogger.js';
+import { ResourceItem, FileItem } from '../../shared/constants/storagePaths.js';
+
+import { ensureKaomojiSearchProviderRegistered } from './integrations/kaomojiSearchProvider.js';
+import { KaomojiJsonParser } from './parsers/kaomojiJsonParser.js';
+import { KaomojiViewRenderer } from './view/kaomojiViewRenderer.js';
+import { KaomojiSettings, KaomojiUI } from './constants/kaomojiConstants.js';
+
+/**
+ * KaomojiTabContent
+ *
+ * A content widget for the "Kaomoji" tab.
+ * This class acts as a controller that configures and manages a CategorizedItemViewer component to display and interact with kaomojis.
+ *
+ * @fires set-main-tab-bar-visibility Requests to show or hide the main tab bar.
+ * @fires navigate-to-main-tab Requests a navigation to a different main tab.
+ */
+export const KaomojiTabContent = GObject.registerClass(
+    {
+        Signals: {
+            'set-main-tab-bar-visibility': { param_types: [GObject.TYPE_BOOLEAN] },
+            'navigate-to-main-tab': { param_types: [GObject.TYPE_STRING] },
+        },
+    },
+    class KaomojiTabContent extends St.Bin {
+        // ========================================================================
+        // Initialization
+        // ========================================================================
+
+        /**
+         * Initialize the Kaomoji tab content.
+         *
+         * @param {object} extension The main extension instance.
+         * @param {Gio.Settings} settings The GSettings instance for the extension.
+         */
+        constructor(extension, settings) {
+            super({
+                style_class: 'kaomoji-tab-content',
+                x_expand: true,
+                y_expand: true,
+                x_align: Clutter.ActorAlign.FILL,
+                y_align: Clutter.ActorAlign.FILL,
+            });
+
+            this._settings = settings;
+            this._alwaysShowTabsSignalId = 0;
+
+            ensureKaomojiSearchProviderRegistered({ extensionUuid: extension?.uuid });
+
+            this._viewRenderer = new KaomojiViewRenderer();
+
+            const config = {
+                jsonPath: ResourceItem.KAOMOJI,
+                parserClass: KaomojiJsonParser,
+                recentsPath: FileItem.RECENT_KAOMOJI,
+                recentsMaxItemsKey: KaomojiSettings.RECENTS_MAX_ITEMS_KEY,
+                targetItemWidth: KaomojiUI.TARGET_ITEM_WIDTH,
+                limitItemsPerRowKey: KaomojiSettings.GRID_LIMIT_COLUMNS_KEY,
+                maxItemsPerRowKey: KaomojiSettings.GRID_MAX_COLUMNS_KEY,
+                categoryPropertyName: 'greaterCategory',
+                enableTabScrolling: true,
+                sortCategories: false,
+                // Ensure the payload is consistent for both old and new item formats.
+                createSignalPayload: (itemData) => ({
+                    kaomoji: itemData.kaomoji || itemData.char || itemData.value || '',
+                    description: itemData.description || '',
+                }),
+                searchFilterFn: (item, searchText) => this._viewRenderer.searchFilter(item, searchText),
+                renderGridItemFn: (itemData) => this._viewRenderer.renderGridItem(itemData),
+                renderCategoryButtonFn: (categoryId) => this._viewRenderer.renderCategoryButton(categoryId),
+            };
+
+            this._viewer = new CategorizedItemViewer(extension, settings, config);
+            this.set_child(this._viewer);
+
+            this._applyBackButtonPreference();
+            this._alwaysShowTabsSignalId = settings.connect('changed::always-show-main-tab', () => this._applyBackButtonPreference());
+
+            this._viewer.connect('item-selected', (source, jsonPayload) => {
+                this._onItemSelected(jsonPayload, extension);
+            });
+
+            this._viewer.connect('back-requested', () => {
+                this.emit('navigate-to-main-tab', _('Recently Used'));
+            });
+        }
+
+        /**
+         * Applies the user's preference for always showing the main tab back button.
+         *
+         * @private
+         */
+        _applyBackButtonPreference() {
+            const shouldShowBackButton = !this._settings.get_boolean('always-show-main-tab');
+            this._viewer?.setBackButtonVisible(shouldShowBackButton);
+        }
+
+        // ========================================================================
+        // Signal Handlers and Callbacks
+        // ========================================================================
+
+        /**
+         * Handles the 'item-selected' signal from the viewer.
+         * Copies the selected kaomoji string to the clipboard.
+         *
+         * @param {string} jsonPayload The JSON string payload from the signal.
+         * @param {Extension} extension The main extension instance.
+         * @private
+         */
+        async _onItemSelected(jsonPayload, extension) {
+            try {
+                const data = IOJson.parseText(jsonPayload);
+                const kaomojiToCopy = data.kaomoji;
+                if (!kaomojiToCopy) return;
+
+                clipboardSetText(kaomojiToCopy);
+
+                await GlobalActionService.executeCopyAction({
+                    onCopy: async () => true,
+                    settings: this._settings,
+                    autoPasteKey: 'auto-paste-kaomoji',
+                    menu: extension._indicator.menu,
+                });
+            } catch (e) {
+                Logger.error('Error in kaomoji item selection', e);
+            }
+        }
+
+        // ========================================================================
+        // Public Methods
+        // ========================================================================
+
+        /**
+         * Called by the parent when this tab is selected.
+         */
+        onTabSelected() {
+            this.emit('set-main-tab-bar-visibility', false);
+            this._viewer?.onSelected();
+        }
+
+        /**
+         * Applies an externally provided search query to this tab.
+         *
+         * @param {string} query Query text.
+         */
+        async applyExternalSearch(query) {
+            this._viewer?.applyExternalSearch(query, { focus: false });
+        }
+
+        /**
+         * Clears externally provided search state.
+         */
+        async clearExternalSearch() {
+            this._viewer?.clearExternalSearch({ focus: false });
+        }
+
+        // ========================================================================
+        // Lifecycle
+        // ========================================================================
+
+        /**
+         * Cleans up resources when the widget is destroyed.
+         */
+        destroy() {
+            if (this._alwaysShowTabsSignalId) {
+                this._settings?.disconnect(this._alwaysShowTabsSignalId);
+            }
+            this._alwaysShowTabsSignalId = 0;
+
+            this._viewer?.destroy();
+            super.destroy();
+        }
+    },
+);

@@ -1,9 +1,17 @@
 # tommasodotnet's dotfiles - forked from jldeen's repo
 
 ### Install
-Run the following to configure Ubuntu from scratch...
+Run the generic setup to configure Ubuntu from scratch:
 ```
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/tommasodotnet/dotfiles/main/setup.sh)"
+```
+
+GNOME and Microsoft setup are intentionally separate. After the generic setup,
+run either of these only when you want that machine-specific configuration:
+
+```sh
+gnome-setup.sh
+microsoft-setup.sh
 ```
 
 ## topical
@@ -33,45 +41,19 @@ There are a few special files in the hierarchy.
 - **topic/completion.zsh**: Any file named `completion.zsh` is loaded
   last and is expected to set up autocomplete.
 - **topic/install.sh**: Any file named `install.sh` is executed when you run
-  `script/install`. To avoid being loaded automatically, its extension is
-  `.sh`, not `.zsh`.
+  `script/install`. Optional setup scripts should use a different filename so
+  they are not discovered automatically.
 - **topic/\*.symlink**: Any file ending in `*.symlink` gets symlinked into
   your `$HOME`. This is so you can keep all of those versioned in your dotfiles
   but still keep those autoloaded files in your home directory. These get
   symlinked in when you run `script/bootstrap`.
-- **gnome/**: Running `script/bootstrap` symlinks GNOME Shell extensions from
-  `gnome/extensions/` into `~/.local/share/gnome-shell/extensions/` and
-  restores shell/extension settings from the tracked dconf dumps.
-  Running `script/install` (which discovers `gnome/install.sh`) installs
-  **CaskaydiaCove Nerd Font Mono** and app tweaks by default. The optional
-  MacTahoe GTK/icon theme is installed only when `DOTFILES_INSTALL_MACOS_THEME=1`
-  is set.
-- **microsoft/**: Running `script/install` (which discovers `microsoft/install.sh`)
-  sets up Microsoft Edge, VS Code, Intune, Microsoft Identity Broker,
+- **gnome/**: Optional. Run `gnome-setup.sh` deliberately to symlink GNOME Shell
+  extensions from `gnome/extensions/`, restore shell/extension settings from
+  the tracked dconf dumps, and run `gnome/setup.sh`. The optional MacTahoe
+  GTK/icon theme is installed only when `DOTFILES_INSTALL_MACOS_THEME=1` is set.
+- **microsoft/**: Optional. Run `microsoft-setup.sh` deliberately to set up
+  Microsoft Edge, VS Code, Intune, Microsoft Identity Broker,
   linux-entra-sso's native connector when available, Himmelblau stable without
   the broker package, Azure VPN, and YubiKey support. Himmelblau defaults to
   mapping the current local user to `tstocchi@microsoft.com`; override that with
   `DOTFILES_HIMMELBLAU_UPN`.
-
-Optional macOS-style desktop setup:
-
-```sh
-DOTFILES_INSTALL_MACOS_THEME=1 script/install
-```
-
-## Git clone
-There are two "master" branches here: WSL and MacOS.
-
-If you wish to clone these files and run scripts manually, run this:
-
-```sh
-git clone https://github.com/tommasodotnet/dotfiles.git ~/.dotfiles
-cd ~/.dotfiles
-script/bootstrap
-```
-
-This will symlink the appropriate files in `.dotfiles` to your home directory.
-Everything is configured and tweaked within `~/.dotfiles`.
-
-The main file you'll want to change right off the bat is `zsh/zshrc.symlink`,
-which sets up a few paths that'll be different on your particular machine. You also might want to configure `.tmux.conf` since I run a few scripts in the status bar.

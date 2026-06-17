@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
 # Export current GNOME extension settings to dotfiles.
 # Run this whenever you change extension settings and want to persist them.

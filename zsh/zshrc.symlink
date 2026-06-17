@@ -100,13 +100,6 @@ plugins=(sudo git history tmux tmuxinator zsh-autosuggestions zsh-completions zs
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 
@@ -201,3 +194,6 @@ export PATH=$JAVA_HOME/bin:$PATH
 export ANDROID_HOME=$HOME/Android/Sdk
 export ANDROID_SDK_ROOT=$ANDROID_HOME
 export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
+
+# OpenClaw Completion
+[ -f "/home/tommasostocchi/.openclaw/completions/openclaw.zsh" ] && source "/home/tommasostocchi/.openclaw/completions/openclaw.zsh"

@@ -77,48 +77,6 @@ echo "Now installing powerlevel10k..."
 echo ''
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerlevel10k
 
-# vimrc vundle install
-echo ''
-echo "Now installing vundle..."
-echo ''
-git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-
-# Pathogen install
-echo ''
-echo "Now installing Pathogen..."
-echo ''
-mkdir -p ~/.vim/autoload ~/.vim/bundle && \
-	curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
-
-# Nerdtree for vim install
-echo ''
-echo "Now installing Nerdtree for Vim..."
-echo ''
-git clone https://github.com/scrooloose/nerdtree.git ~/.vim/bundle/nerdtree
-
-# Vim color scheme install
-echo ''
-echo "Now installing vim wombat color scheme..."
-echo ''
-git clone https://github.com/sheerun/vim-wombat-scheme.git ~/.vim/colors/wombat 
-mv ~/.vim/colors/wombat/colors/* ~/.vim/colors/
-
-# Midnight commander install
-echo ''
-echo "Now installing Midnight commander..."
-echo ''
-sudo apt-get install mc -y
-
-# echo ''
-# echo "Now installing kubectl..."
-# echo ''
-# sudo apt-get update
-# sudo apt-get install -y apt-transport-https ca-certificates curl
-# sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-# echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-# sudo apt-get update
-# sudo apt-get install -y kubectl
-
 # Speedtest-cli, pip and jq install
 echo ''
 echo "Now installing Speedtest-cli, pip, tmux and jq..."

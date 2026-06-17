@@ -1,4 +1,3 @@
-@@ -1,183 +0,0 @@
 #!/usr/bin/env bash
 #
 # bootstrap installs things.
@@ -142,46 +141,8 @@ install_dotfiles () {
   done
 }
 
-install_gnome_symlinks () {
-  info 'installing gnome symlinks'
-
-  local overwrite_all=true backup_all=false skip_all=false
-  local gnome_extensions_root="$DOTFILES_ROOT/gnome/extensions"
-
-  if [ -d "$gnome_extensions_root" ]
-  then
-    for src in "$gnome_extensions_root"/*
-    do
-      [ -e "$src" ] || continue
-      dst="$HOME/.local/share/gnome-shell/extensions/$(basename "$src")"
-      link_file "$src" "$dst"
-    done
-  fi
-}
-
-restore_gnome_settings () {
-  info 'restoring gnome extension settings'
-
-  local shell_dconf="$DOTFILES_ROOT/gnome/shell.dconf"
-  local extensions_dconf="$DOTFILES_ROOT/gnome/extensions.dconf"
-
-  if [ -f "$shell_dconf" ]
-  then
-    dconf load /org/gnome/shell/ < "$shell_dconf"
-    success "restored gnome shell settings (enabled extensions, favorites)"
-  fi
-
-  if [ -f "$extensions_dconf" ]
-  then
-    dconf load /org/gnome/shell/extensions/ < "$extensions_dconf"
-    success "restored gnome extension settings"
-  fi
-}
-
 setup_gitconfig
 install_dotfiles
-install_gnome_symlinks
-restore_gnome_settings
 installRuby
 
 # If we're on a Mac, let's install and setup homebrew.
