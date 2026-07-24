@@ -32,6 +32,39 @@ os_id() {
   printf '%s' "$ID"
 }
 
+configure_himmelblau_os_override() {
+  if [ "$(os_id)" = "ubuntu" ]; then
+    return 0
+  fi
+
+  echo "  Configuring Himmelblau Ubuntu policy compatibility override…"
+  sudo install -d -m 755 /etc/systemd/system/himmelblaud-tasks.service.d
+
+  sudo tee /var/lib/fake-os-release > /dev/null <<'EOF'
+PRETTY_NAME="Ubuntu 22.04.4 LTS"
+NAME="Ubuntu"
+VERSION_ID="22.04"
+VERSION="22.04.4 LTS (Jammy Jellyfish)"
+VERSION_CODENAME=jammy
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=jammy
+EOF
+
+  sudo tee /etc/systemd/system/himmelblaud-tasks.service.d/override.conf > /dev/null <<'EOF'
+[Service]
+BindReadOnlyPaths=/var/lib/fake-os-release:/usr/lib/os-release
+EOF
+
+  if command -v systemctl >/dev/null 2>&1 && systemctl list-unit-files >/dev/null 2>&1; then
+    sudo systemctl daemon-reload
+  fi
+}
+
 configure_himmelblau() {
   echo "  Configuring Himmelblau for ${HIMMELBLAU_UPN}…"
   sudo install -d -m 755 /etc/himmelblau
@@ -59,6 +92,7 @@ EOF
   echo "${HIMMELBLAU_LOCAL_USER}:${HIMMELBLAU_UPN}" | sudo tee /etc/himmelblau/user-map > /dev/null
   sudo chmod 600 /etc/himmelblau/user-map
 
+  configure_himmelblau_os_override
 }
 
 # ── Package helpers ────────────────────────────────────────────────────────
