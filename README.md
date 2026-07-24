@@ -1,9 +1,9 @@
 # tommasodotnet's dotfiles - forked from jldeen's repo
 
 ### Install
-Run the generic setup to configure Ubuntu from scratch:
+Run the generic setup to configure Fedora from scratch:
 ```
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/tommasodotnet/dotfiles/main/setup.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/tommasodotnet/dotfiles/fedora/setup.sh)"
 ```
 
 GNOME and Microsoft setup are intentionally separate. After the generic setup,

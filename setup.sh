@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Update pkg lists
-echo "Updating package lists..."
-sudo apt-get update
+# Refresh package metadata
+echo "Refreshing package metadata..."
+sudo dnf makecache
 
 # zsh install
 which zsh > /dev/null 2>&1
@@ -12,13 +12,13 @@ echo "zsh already installed..."
 else
 echo "zsh not found, now installing zsh..."
 echo ''
-sudo apt install zsh -y
+sudo dnf install -y zsh
 fi
 
 # Installing git completion
 echo ''
 echo "Now installing git and bash-completion..."
-sudo apt-get install git bash-completion -y
+sudo dnf install -y git bash-completion curl wget
 
 echo ''
 echo "Now configuring git-completion..."
@@ -81,13 +81,11 @@ git clone --depth=1 https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/the
 echo ''
 echo "Now installing Speedtest-cli, pip, tmux and jq..."
 echo ''
-sudo apt-get install jq tmux python3-pip -y
-sudo pip install --upgrade pip
-sudo pip install speedtest-cli
+sudo dnf install -y jq tmux python3-pip speedtest-cli
 
 # Bash color scheme
 echo ''
-echo "Now installing solarized dark WSL color scheme..."
+echo "Now installing solarized dark dircolors scheme..."
 echo ''
 wget https://raw.githubusercontent.com/seebi/dircolors-solarized/master/dircolors.256dark
 mv dircolors.256dark .dircolors
@@ -95,7 +93,7 @@ mv dircolors.256dark .dircolors
 echo ''
 echo "Now pulling down tommasodotnet dotfiles..."
 { #try
-    git clone https://github.com/tommasodotnet/dotfiles.git ~/.dotfiles
+    git clone --branch fedora https://github.com/tommasodotnet/dotfiles.git ~/.dotfiles
     sudo chmod +x $HOME/.dotfiles/script/bootstrap
     echo ''
     cd $HOME/.dotfiles && echo "switched to .dotfiles dir..."
@@ -116,4 +114,4 @@ echo "Now pulling down tommasodotnet dotfiles..."
 }
 
 echo ''
-echo "Badass WSL terminal installed!"
+echo "Badass Fedora terminal installed!"

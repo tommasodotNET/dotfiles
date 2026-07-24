@@ -1,2 +1,2 @@
 echo "Installing ruby"
-sudo apt-get install ruby-full
+sudo dnf install -y ruby ruby-devel make gcc

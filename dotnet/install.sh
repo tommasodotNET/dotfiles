@@ -9,7 +9,7 @@ echo "Installing dotnet"
   echo "Trusting dotnet dev certs"
   dotnet dev-certs https --trust
 
-  export SSL_CERT_DIR="$HOME/.aspnet/dev-certs/trust:/usr/lib/ssl/certs"
+  export SSL_CERT_DIR="$HOME/.aspnet/dev-certs/trust:/etc/pki/tls/certs"
 } || { #catch
   echo "dotnet install failed"
 }
