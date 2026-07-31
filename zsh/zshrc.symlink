@@ -188,7 +188,8 @@ if [ -d "$FNM_PATH" ]; then
   eval "$(fnm env --shell zsh)"
 fi
 
-. "$HOME/.local/bin/env"
+# . "$HOME/.local/bin/env"
+export PATH="$HOME/.local/bin:$PATH"
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 export PATH=$JAVA_HOME/bin:$PATH
 export ANDROID_HOME=$HOME/Android/Sdk
@@ -197,3 +198,10 @@ export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:
 
 # OpenClaw Completion
 [ -f "/home/tommasostocchi/.openclaw/completions/openclaw.zsh" ] && source "/home/tommasostocchi/.openclaw/completions/openclaw.zsh"
+
+# fnm
+FNM_PATH="/home/tommasostocchi/.local/share/fnm"
+if [ -d "$FNM_PATH" ]; then
+  export PATH="$FNM_PATH:$PATH"
+  eval "$(fnm env --shell zsh)"
+fi

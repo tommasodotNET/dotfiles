@@ -6,6 +6,21 @@ set -e
 
 DOTFILES_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
+# ── GNOME Shell Extensions ─────────────────────────────────────────────────
+
+EXTENSIONS_SOURCE_DIR="$DOTFILES_ROOT/gnome/extensions"
+EXTENSIONS_TARGET_DIR="$HOME/.local/share/gnome-shell/extensions"
+
+echo "  Installing bundled GNOME Shell extensions…"
+mkdir -p "$EXTENSIONS_TARGET_DIR"
+cp -a "$EXTENSIONS_SOURCE_DIR/." "$EXTENSIONS_TARGET_DIR/"
+find "$EXTENSIONS_TARGET_DIR" -mindepth 2 -maxdepth 2 -type d -name schemas -exec glib-compile-schemas {} \;
+
+echo "  Loading GNOME Shell configuration…"
+dconf load /org/gnome/shell/ < "$DOTFILES_ROOT/gnome/shell.dconf"
+dconf load /org/gnome/shell/extensions/ < "$DOTFILES_ROOT/gnome/extensions.dconf"
+echo "  GNOME Shell extensions configured. Log out and back in if they do not appear immediately."
+
 # ── CaskaydiaCove Nerd Font Mono ────────────────────────────────────────────
 
 FONT_DIR="$HOME/.local/share/fonts/CaskaydiaCoveNerdFont"
@@ -38,5 +53,5 @@ cat > "$SPOTIFY_FLAGS" <<'EOF'
 --ozone-platform=x11
 --enable-features=RunAsNativeGtk
 EOF
-flatpak override --user --nosocket=wayland com.spotify.Client
+flatpak override --user --socket=x11 --nosocket=wayland --env=WAYLAND_DISPLAY= com.spotify.Client
 echo "  Spotify fix applied."
