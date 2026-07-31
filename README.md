@@ -11,7 +11,8 @@ run either of these only when you want that machine-specific configuration:
 
 ```sh
 gnome-setup.sh
-microsoft-setup.sh
+fedora.sh
+setup_himmelblau.sh
 ```
 
 ## topical
