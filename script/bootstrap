@@ -2,8 +2,8 @@
 #
 # bootstrap installs things.
 
-# cd "$(dirname "$0")/.."
-DOTFILES_ROOT=$(pwd -P)
+DOTFILES_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
+cd "$DOTFILES_ROOT"
 
 set -e
 
@@ -48,13 +48,17 @@ setup_gitconfig () {
 }
 
 installRuby () {
-  sudo apt install ruby ruby-dev ruby-colorize -y
-  sudo gem install colorls
+  bash "$DOTFILES_ROOT/ruby/install.sh"
 
 }
 
 link_file () {
   local src=$1 dst=$2
+
+  if [ -L "$dst" ] && [ "$(readlink "$dst")" = "$src" ]; then
+    success "already linked $dst"
+    return
+  fi
 
   local overwrite= backup= skip=
   local action=
@@ -111,7 +115,7 @@ link_file () {
 
     if [ "$backup" == "true" ]
     then
-      mv "$dst" "${dst}.backup"
+      mv --backup=numbered "$dst" "${dst}.backup"
       success "moved $dst to ${dst}.backup"
     fi
 
@@ -132,7 +136,7 @@ link_file () {
 install_dotfiles () {
   info 'installing dotfiles'
 
-  local overwrite_all=true backup_all=false skip_all=false
+  local overwrite_all=false backup_all=true skip_all=false
 
   for src in $(find -H "$DOTFILES_ROOT" -maxdepth 2 -name '*.symlink' -not -path '*.git*')
   do
@@ -158,27 +162,12 @@ then
 fi
 ## JD edit
 
-#backup old bin, if exists
-if [ -e $HOME/bin ]
-then
-    echo ''
-    echo "current $HOME/bin folder found!!! Creating backup..."
-    sudo mv $HOME/bin bin_old
-else
-    echo ''
-    echo "No current $HOME/bin folder found. Proceeding to link bin folder for tumx scripts..."
+# Preserve existing destinations and leave matching links untouched on rerun.
+overwrite_all=false backup_all=true skip_all=false
+link_file "$DOTFILES_ROOT/bin" "$HOME/bin"
+link_file "$DOTFILES_ROOT/tmux" "$HOME/.tmux"
+if [ ! -d "$HOME/.tmux/plugins/tpm/.git" ]; then
+  git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
 fi
 
-# symlink .dotfiles bin to ~
-ln -s $HOME/.dotfiles/bin $HOME/bin
-
-# # symlink .dotfiles tmux to ~ & plugin mgr install
-ln -s $HOME/.dotfiles/tmux $HOME/.tmux
-# Tmux Plugin Manager
-echo ''
-echo "Now installing tmux plugin manager..."
-echo ''
-git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-
-echo ''
 echo '  All installed!'

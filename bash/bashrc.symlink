@@ -112,13 +112,14 @@ if ! shopt -oq posix; then
 fi
 
 export CLICOLOR=1
-source ~/.git-completion.bash
+[ ! -f ~/.git-completion.bash ] || source ~/.git-completion.bash
+[ ! -f /usr/share/git-core/contrib/completion/git-prompt.sh ] || source /usr/share/git-core/contrib/completion/git-prompt.sh
 PS1='\[\033[37m\]\W\[\033[0m\]$(__git_ps1 " (\[\033[35m\]%s\[\033[0m\])") \$ '
 GIT_PS1_SHOWDIRTYSTATE=1
 GIT_PS1_SHOWSTASHSTATE=1
 GIT_PS1_SHOWUNTRACKEDFILES=1
 GIT_PS1_SHOWUPSTREAM="auto"
 
-. "$HOME/.cargo/env"
+[ ! -f "$HOME/.cargo/env" ] || . "$HOME/.cargo/env"
 
-. "$HOME/.local/bin/env"
+[ ! -f "$HOME/.local/bin/env" ] || . "$HOME/.local/bin/env"
