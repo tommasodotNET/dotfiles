@@ -1,0 +1,439 @@
+diff --git a/src/openvpn/config.ts b/src/openvpn/config.ts
+index 6ba4a4e..dd06255 100644
+--- a/src/openvpn/config.ts
++++ b/src/openvpn/config.ts
+@@ -17,7 +17,8 @@
+ import { azureCompatDirectives } from './azureCompat.ts';
+ import { OpenP2SError } from '../errors.ts';
+ import { toOpenVpnStaticKey } from '../profile/serversecret.ts';
+-import type { AzureVpnProfile } from '../profile/types.ts';
++import type { AzureVpnProfile, AzureVpnRoute } from '../profile/types.ts';
++import { validatePrefix } from '../profile/validate.ts';
+ 
+ /**
+  * How the config gets the token - the only difference between what `connect`
+@@ -96,6 +97,21 @@ export interface RenderOptions {
+   readonly probe?: boolean;
+ }
+ 
++/** IPv4 routes always name a gateway; OpenVPN otherwise defaults to the VPN. */
++function renderRoute(route: AzureVpnRoute, gateway: 'vpn_gateway' | 'net_gateway'): string {
++  const prefix = validatePrefix(`${route.address}/${route.prefixLength}`, 'route');
++  if (prefix.family !== 4 || route.family !== 4) {
++    throw new OpenP2SError('IPv6 client routes are not supported');
++  }
++  const mask = Array.from({ length: 4 }, (_, index) => {
++    const bits = Math.min(8, Math.max(0, prefix.prefixLength - index * 8));
++    return 256 - 2 ** (8 - bits);
++  });
++  // A destination containing host bits still denotes the requested network.
++  const network = prefix.address.split('.').map((octet, index) => Number(octet) & mask[index]!);
++  return `route ${network.join('.')} ${mask.join('.')} ${gateway}`;
++}
++
+ /**
+  * Render the OpenVPN configuration.
+  *
+@@ -148,6 +164,9 @@ export function renderOpenVpnConfig(options: RenderOptions): string {
+     ...profile.gateways.map((gateway) => `remote ${gateway} ${profile.port}`),
+     'nobind',
+     'resolv-retry infinite',
++    '# Keep the outer VPN transport on the pre-VPN gateway, even when',
++    '# the XML or server pushes a route covering the VPN endpoint itself.',
++    'route remote_host 255.255.255.255 net_gateway',
+     '',
+     '# Require the peer certificate to carry the TLS server extended key',
+     '# usage, and validate the chain against the system trust store.',
+@@ -238,6 +257,16 @@ export function renderOpenVpnConfig(options: RenderOptions): string {
+     );
+   }
+ 
++  const routes = [
++    ...profile.includeRoutes.map((route) => renderRoute(route, 'vpn_gateway')),
++    ...(profile.excludeRoutes ?? []).map((route) => renderRoute(route, 'net_gateway')),
++  ];
++  if (routes.length > 0) {
++    // These supplement PUSH_REPLY; do not filter or replace gateway routes.
++    // route-noexec below also prevents these local routes during a probe.
++    lines.push('', '# Client profile routes; gateway-pushed routes remain enabled.', ...routes);
++  }
++
+   if (options.probe) {
+     lines.push(
+       '',
+diff --git a/src/profile/parser.ts b/src/profile/parser.ts
+index 2846817..c2a3b52 100644
+--- a/src/profile/parser.ts
++++ b/src/profile/parser.ts
+@@ -17,7 +17,7 @@
+  *                       <usepinnedroot>
+  *     <clientconfig><dnsservers><dnsserver>
+  *                   <dnssuffixes><dnssuffix>
+- *                   <includeroutes>
++ *                   <includeroutes><excluderoutes>
+  *     <protocolconfig><sslprotocolConfig><transportprotocol>
+  *
+  * Note how deeply nested the important fields are, and that <issuer> and
+@@ -47,6 +47,7 @@ import {
+   childNode,
+   findFirst,
+   findFirstText,
++  localName,
+   parseBoolean,
+   text,
+   textAtPath,
+@@ -165,20 +166,39 @@ function netmaskToPrefixLength(mask: string): number {
+ }
+ 
+ /**
+- * Read <includeroutes>, tolerating the shapes seen in the wild.
++ * Read include/exclude routes, tolerating the shapes seen in the wild.
+  *
+  * Either repeated <route><destination>/<mask></route> children, or flat
+- * <includeroute> text elements. Both normalise to CIDR.
++ * <includeroute>/<excluderoute> text elements. Both normalise to CIDR.
+  */
+-function parseIncludeRoutes(clientConfig: XmlNode | undefined): AzureVpnRoute[] {
+-  const container = childNode(clientConfig, 'includeroutes');
+-  if (!container) return [];
++function parseRoutes(
++  clientConfig: XmlNode | undefined,
++  kind: 'include' | 'exclude',
++): AzureVpnRoute[] {
++  const field = `${kind}routes`;
++  const rawContainer = child(clientConfig, field);
++  if (rawContainer === undefined || rawContainer === '') return [];
++  if (typeof rawContainer !== 'object' || rawContainer === null || Array.isArray(rawContainer)) {
++    throw new ProfileError(`<${field}> must be a single route container`);
++  }
++  const container = rawContainer as XmlNode;
++  for (const key of Object.keys(container)) {
++    if (key.startsWith('@_')) continue;
++    if (!['route', `${kind}route`].includes(localName(key).toLowerCase())) {
++      throw new ProfileError(`<${field}> contains an unsupported route element`);
++    }
++  }
+ 
+   const routes: AzureVpnRoute[] = [];
+   const seen = new Set<string>();
+ 
+   const push = (raw: string, field: string): void => {
+     const prefix = validatePrefix(raw, field);
++    // IPv6 needs different OpenVPN gateway semantics. Refuse rather than
++    // silently dropping a route, especially an exclusion meant to stay local.
++    if (prefix.family !== 4) {
++      throw new ProfileError(`IPv6 ${kind} routes are not supported`);
++    }
+     if (seen.has(prefix.cidr)) return;
+     seen.add(prefix.cidr);
+     routes.push(routeFromPrefix(prefix));
+@@ -187,7 +207,7 @@ function parseIncludeRoutes(clientConfig: XmlNode | undefined): AzureVpnRoute[]
+   for (const entry of toArray(child(container, 'route'))) {
+     if (typeof entry !== 'object' || entry === null) {
+       const value = text(entry);
+-      if (value) push(value, 'route');
++      push(requireText(value, 'route'), 'route');
+       continue;
+     }
+     const node = entry as XmlNode;
+@@ -197,6 +217,9 @@ function parseIncludeRoutes(clientConfig: XmlNode | undefined): AzureVpnRoute[]
+     }
+     const mask = text(child(node, 'mask')) ?? text(child(node, 'prefixlength'));
+     if (mask === undefined) {
++      if (child(node, 'mask') !== undefined || child(node, 'prefixlength') !== undefined) {
++        throw new ProfileError('<route> has an empty mask');
++      }
+       push(destination, 'route');
+     } else if (/^[0-9]{1,3}$/.test(mask)) {
+       push(`${destination}/${mask}`, 'route');
+@@ -205,9 +228,9 @@ function parseIncludeRoutes(clientConfig: XmlNode | undefined): AzureVpnRoute[]
+     }
+   }
+ 
+-  for (const entry of toArray(child(container, 'includeroute'))) {
+-    const value = text(entry);
+-    if (value) push(value, 'includeroute');
++  for (const entry of toArray(child(container, `${kind}route`))) {
++    const value = requireText(text(entry), `${kind}route`);
++    push(value, `${kind}route`);
+   }
+ 
+   return routes;
+@@ -378,7 +401,8 @@ export class AzureProfileParser {
+       usePinnedRoot,
+       dnsServers: parseDnsServers(clientConfig),
+       dnsSuffixes: parseDnsSuffixes(clientConfig),
+-      includeRoutes: parseIncludeRoutes(clientConfig),
++      includeRoutes: parseRoutes(clientConfig, 'include'),
++      excludeRoutes: parseRoutes(clientConfig, 'exclude'),
+     };
+   }
+ 
+diff --git a/src/profile/types.ts b/src/profile/types.ts
+index 37e8be0..18008ed 100644
+--- a/src/profile/types.ts
++++ b/src/profile/types.ts
+@@ -75,6 +75,8 @@ export interface AzureVpnProfile {
+   readonly dnsSuffixes: readonly string[];
+   /** Client-side routes from <clientconfig>, distinct from PUSH_REPLY routes. */
+   readonly includeRoutes: readonly AzureVpnRoute[];
++  /** Client-side routes that must use the pre-VPN default gateway. */
++  readonly excludeRoutes?: readonly AzureVpnRoute[];
+ }
+ 
+ export function routeFromPrefix(prefix: ParsedPrefix): AzureVpnRoute {
+diff --git a/tests/fixtures/expected-openvpn.conf b/tests/fixtures/expected-openvpn.conf
+index 55263fb..2195aa1 100644
+--- a/tests/fixtures/expected-openvpn.conf
++++ b/tests/fixtures/expected-openvpn.conf
+@@ -13,6 +13,9 @@ proto tcp-client
+ remote azuregateway-fake-0000.vpn.azure.com 443
+ nobind
+ resolv-retry infinite
++# Keep the outer VPN transport on the pre-VPN gateway, even when
++# the XML or server pushes a route covering the VPN endpoint itself.
++route remote_host 255.255.255.255 net_gateway
+ 
+ # Require the peer certificate to carry the TLS server extended key
+ # usage, and validate the chain against the system trust store.
+@@ -44,6 +47,10 @@ management-client
+ management-query-passwords
+ management-hold
+ 
++# Client profile routes; gateway-pushed routes remain enabled.
++route 10.20.0.0 255.255.0.0 vpn_gateway
++route 10.30.0.0 255.255.255.0 vpn_gateway
++
+ verb 3
+ 
+ # Azure supplies the tls-auth key as <serversecret> in the profile.
+diff --git a/tests/openvpn-config.test.ts b/tests/openvpn-config.test.ts
+index 18eac90..4216e20 100644
+--- a/tests/openvpn-config.test.ts
++++ b/tests/openvpn-config.test.ts
+@@ -204,10 +204,20 @@ describe('renderOpenVpnConfig: security invariants', () => {
+     assert.match(config, /^reneg-sec 0$/m);
+   });
+ 
+-  it('adds no route directives, leaving PUSH_REPLY routes to OpenVPN', () => {
+-    // Duplicating pushed routes here would fight with what the gateway sends.
+-    const routeLines = config.split('\n').filter((line) => /^route\s/.test(line.trim()));
+-    assert.deepEqual(routeLines, []);
++  it('adds profile routes without disabling gateway-pushed routes', () => {
++    const lines = directives(config);
++    assert.deepEqual(
++      lines.filter((line) => line.startsWith('route ')),
++      [
++        'route remote_host 255.255.255.255 net_gateway',
++        'route 10.20.0.0 255.255.0.0 vpn_gateway',
++        'route 10.30.0.0 255.255.255.0 vpn_gateway',
++      ],
++    );
++    for (const forbidden of ['route-nopull', 'pull-filter', 'route-noexec']) {
++      assert.ok(!lines.some((line) => line.startsWith(forbidden)));
++    }
++    assert.ok(lines.includes('client'), 'client keeps pull enabled');
+   });
+ });
+ 
+@@ -424,3 +434,18 @@ describe('inline CA', () => {
+     assert.ok(!config.includes('<ca>'));
+   });
+ });
++
++describe('outer VPN transport route', () => {
++  it('pins the current remote host to the pre-VPN gateway before profile routes', () => {
++    const config = render();
++    assertLine(config, 'route remote_host 255.255.255.255 net_gateway');
++    assert.ok(config.indexOf('route remote_host ') < config.indexOf('route 10.20.0.0 '));
++  });
++  it('keeps endpoint protection inert during a no-network probe', () => {
++    const config = render(loadProfile(), { probe: true });
++    assertLine(config, 'route remote_host 255.255.255.255 net_gateway');
++    assertLine(config, 'route-noexec');
++    assertLine(config, 'ifconfig-noexec');
++    assertLine(config, 'dev null');
++  });
++});
+diff --git a/tests/profile-routes.test.ts b/tests/profile-routes.test.ts
+new file mode 100644
+index 0000000..f8bfe2e
+--- /dev/null
++++ b/tests/profile-routes.test.ts
+@@ -0,0 +1,176 @@
++/** Synthetic route policy regressions: no VPN, authentication or host changes. */
++import assert from 'node:assert/strict';
++import { readFileSync } from 'node:fs';
++import { join } from 'node:path';
++import { describe, it } from 'node:test';
++import { ProfileError } from '../src/errors.ts';
++import { renderOpenVpnConfig } from '../src/openvpn/config.ts';
++import { AzureProfileParser } from '../src/profile/parser.ts';
++import type { AzureVpnProfile } from '../src/profile/types.ts';
++
++const minimal = readFileSync(join(import.meta.dirname, 'fixtures/valid-minimal.xml'), 'utf8');
++function parse(routes = ''): AzureVpnProfile {
++  return new AzureProfileParser().parse(
++    minimal.replace('</AzVpnProfile>', `<clientconfig>${routes}</clientconfig></AzVpnProfile>`),
++  );
++}
++function render(profile: AzureVpnProfile, probe = false): string[] {
++  return renderOpenVpnConfig({
++    profile,
++    probe,
++    caPath: '/synthetic/ca.pem',
++    credentials: { kind: 'external' },
++  }).split('\n');
++}
++const routes = `
++  <includeroutes>
++    <route><destination>0.0.0.0</destination><mask>0</mask></route>
++    <route><destination>128.0.0.0</destination><mask>1</mask></route>
++    <route><destination>10.20.0.0</destination><mask>255.255.0.0</mask></route>
++    <includeroute>10.30.0.0/24</includeroute>
++    <includeroute>192.0.2.7</includeroute>
++  </includeroutes>
++  <excluderoutes>
++    <route><destination>192.168.0.0</destination><mask>16</mask></route>
++    <route><destination>192.168.0.0</destination><mask>255.255.0.0</mask></route>
++    <route><address>198.51.100.0</address><prefixlength>31</prefixlength></route>
++    <route>203.0.113.9/32</route>
++    <excluderoute>192.0.2.0/25</excluderoute>
++  </excluderoutes>`;
++const expected = [
++  'route remote_host 255.255.255.255 net_gateway',
++  'route 0.0.0.0 0.0.0.0 vpn_gateway',
++  'route 128.0.0.0 128.0.0.0 vpn_gateway',
++  'route 10.20.0.0 255.255.0.0 vpn_gateway',
++  'route 10.30.0.0 255.255.255.0 vpn_gateway',
++  'route 192.0.2.7 255.255.255.255 vpn_gateway',
++  'route 192.168.0.0 255.255.0.0 net_gateway',
++  'route 198.51.100.0 255.255.255.254 net_gateway',
++  'route 203.0.113.9 255.255.255.255 net_gateway',
++  'route 192.0.2.0 255.255.255.128 net_gateway',
++];
++
++describe('profile include/exclude route policy', () => {
++  it('parses and deduplicates exclusions in the same shapes as inclusions', () => {
++    const profile = parse(routes);
++    assert.deepEqual(
++      profile.excludeRoutes?.map((route) => route.cidr),
++      ['192.168.0.0/16', '198.51.100.0/31', '203.0.113.9/32', '192.0.2.0/25'],
++    );
++    assert.equal(profile.excludeRoutes?.[0]?.family, 4);
++    assert.equal(profile.excludeRoutes?.[0]?.prefixLength, 16);
++  });
++
++  it('emits every include/exclude with explicit netmask and correct gateway', () => {
++    assert.deepEqual(
++      render(parse(routes)).filter((line) => line.startsWith('route ')),
++      expected,
++    );
++  });
++
++  it('keeps route-noexec for profile routes as well as pushed routes during probes', () => {
++    const lines = render(parse(routes), true);
++    assert.deepEqual(
++      lines.filter((line) => line.startsWith('route ')),
++      expected,
++    );
++    for (const directive of ['dev null', 'route-noexec', 'ifconfig-noexec']) {
++      assert.ok(lines.includes(directive));
++    }
++    assert.ok(!lines.includes('dev tun'));
++  });
++
++  it('keeps normal PUSH_REPLY route handling', () => {
++    const lines = render(parse(routes));
++    assert.ok(lines.includes('client'));
++    for (const forbidden of ['route-nopull', 'pull-filter', 'route-noexec', 'ifconfig-noexec']) {
++      assert.ok(!lines.some((line) => line.startsWith(forbidden)));
++    }
++  });
++
++  it('accepts omitted, empty and Azure nil route collections', () => {
++    for (const xml of [
++      '',
++      '<includeroutes/><excluderoutes/>',
++      '<excluderoutes xmlns:i="http://www.w3.org/2001/XMLSchema-instance" i:nil="true"/>',
++    ]) {
++      assert.deepEqual(parse(xml).excludeRoutes, []);
++      assert.deepEqual(
++        render(parse(xml)).filter((line) => line.startsWith('route ')),
++        ['route remote_host 255.255.255.255 net_gateway'],
++      );
++    }
++    const { excludeRoutes: _excluded, ...legacy } = parse();
++    assert.deepEqual(
++      render(legacy).filter((line) => line.startsWith('route ')),
++      ['route remote_host 255.255.255.255 net_gateway'],
++    );
++  });
++
++  it('supports namespace-prefixed exclusions', () => {
++    const profile = parse(
++      '<az:excluderoutes xmlns:az="urn:test"><az:route><az:destination>192.0.2.0</az:destination><az:mask>24</az:mask></az:route></az:excluderoutes>',
++    );
++    assert.equal(profile.excludeRoutes?.[0]?.cidr, '192.0.2.0/24');
++  });
++
++  it('normalises host bits before giving OpenVPN a network and mask', () => {
++    assert.ok(
++      render(
++        parse('<excluderoutes><excluderoute>192.0.2.123/24</excluderoute></excluderoutes>'),
++      ).includes('route 192.0.2.0 255.255.255.0 net_gateway'),
++    );
++  });
++
++  for (const kind of ['include', 'exclude']) {
++    for (const bad of [
++      `<${kind}route>10.0.0.999/24</${kind}route>`,
++      `<${kind}route>10.0.0.0/33</${kind}route>`,
++      `<${kind}route>10.0.0.0/-1</${kind}route>`,
++      `<${kind}route>10.0.0.0/24\nscript-security 2</${kind}route>`,
++      `<${kind}route>2001:db8::/32</${kind}route>`,
++      `<${kind}route/>`,
++      '<route/>',
++      '<route><mask>24</mask></route>',
++      '<route><destination>10.0.0.0</destination><mask>255.0.255.0</mask></route>',
++      '<route><destination>10.0.0.0</destination><mask/></route>',
++      '<unexpected>10.0.0.0/24</unexpected>',
++      '10.0.0.0/24',
++    ]) {
++      it(`rejects invalid or unsupported ${kind} input: ${JSON.stringify(bad)}`, () => {
++        assert.throws(() => parse(`<${kind}routes>${bad}</${kind}routes>`), ProfileError);
++      });
++    }
++    it(`rejects repeated ${kind} containers rather than ignoring later routes`, () => {
++      const xml = `<${kind}routes><${kind}route>10.0.0.0/8</${kind}route></${kind}routes>`;
++      assert.throws(() => parse(xml + xml), ProfileError);
++    });
++  }
++
++  it('fails closed on IPv6 exclusions even for programmatically constructed profiles and probes', () => {
++    const profile = {
++      ...parse(),
++      excludeRoutes: [
++        { address: '2001:db8::', prefixLength: 32, family: 6 as const, cidr: '2001:db8::/32' },
++      ],
++    };
++    for (const probe of [false, true]) {
++      assert.throws(() => render(profile, probe), /IPv6 client routes are not supported/);
++    }
++  });
++
++  it('rejects injected addresses even for a programmatically constructed profile', () => {
++    const profile = {
++      ...parse(),
++      excludeRoutes: [
++        {
++          address: '192.0.2.0\nscript-security 2',
++          prefixLength: 24,
++          family: 4 as const,
++          cidr: 'unused',
++        },
++      ],
++    };
++    assert.throws(() => render(profile), ProfileError);
++  });
++});

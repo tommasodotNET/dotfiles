@@ -15,6 +15,22 @@ fedora.sh
 setup_himmelblau.sh
 ```
 
+### Azure VPN (optional, manual connection)
+
+The tested community-client setup is reproducible from the
+[Azure VPN topic](azure-vpn/README.md). It pins OpenP2S/OpenVPN, preserves the
+local routing fixes, verifies release checksums and GitHub attestations, and
+installs a manual desktop launcher. It is **not** part of generic setup:
+
+```sh
+bash ~/.dotfiles/azure-vpn/setup.sh --profile /path/outside/dotfiles/azurevpnconfig.xml
+```
+
+Read the topic prerequisites first. Supply your organisation's private XML
+separately; never commit profiles, tokens or generated VPN configuration.
+Setup does not sign in, connect, enable auto-start, or replace an existing VPN.
+This is not the retired Microsoft Linux client or native GNOME VPN integration.
+
 ### Desktop development tools
 
 `script/bootstrap` links `system/60-fnm.conf` into the Linux user's
@@ -83,6 +99,7 @@ There are a few special files in the hierarchy.
 - **microsoft/**: Optional. Run `microsoft-setup.sh` deliberately to set up
   Microsoft Edge, VS Code, Intune, Microsoft Identity Broker,
   linux-entra-sso's native connector when available, Himmelblau stable without
-  the broker package, Azure VPN, and YubiKey support. Himmelblau defaults to
+  the broker package, and YubiKey support. Azure VPN is a separate optional topic
+  (see above). Himmelblau defaults to
   mapping the current local user to `tstocchi@microsoft.com`; override that with
   `DOTFILES_HIMMELBLAU_UPN`.

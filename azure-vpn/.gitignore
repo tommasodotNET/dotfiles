@@ -1,0 +1,10 @@
+# Never store local profile/config/cache/test output in this public topic.
+__pycache__/
+*.pyc
+*.xml
+*.pem
+*.key
+*.log
+private/
+cache/
+runtime/
