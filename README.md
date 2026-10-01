@@ -15,6 +15,34 @@ fedora.sh
 setup_himmelblau.sh
 ```
 
+### Desktop development tools
+
+`script/bootstrap` links `system/60-fnm.conf` into the Linux user's
+`~/.config/environment.d/` (or `$XDG_CONFIG_HOME/environment.d/`). This exposes
+the default fnm Node installation, `~/.local/bin`, `~/.aspire/bin`, and
+`~/dotnet` to desktop-launched applications, including VS Code launched from
+Copilot. Sign out and back in after changing it; existing applications retain
+their old environment.
+
+`script/install` includes these tool installers, which can also run separately:
+
+```sh
+bash ~/.dotfiles/node/install.sh
+bash ~/.dotfiles/dotnet/install.sh
+bash ~/.dotfiles/uv/install.sh
+```
+
+The Node installer installs Node 24, makes it the fnm default, and installs
+Azure Functions Core Tools 4.15.2 globally under that Node version. If you change
+the fnm default to another installation, install Core Tools there as well.
+The .NET installer adds SDK 10.0.401 to `~/dotnet` without removing older SDKs.
+The uv installer installs the current uv release into `~/.local/bin`.
+Installation failures are reported rather than ignored.
+
+VS Code user settings and extension preferences remain managed by VS Code
+Settings Sync, not by this repository. Keep Settings Sync enabled for the
+desired profile; no workspace SDK pin is required.
+
 ## topical
 
 Everything's built around topic areas. If you're adding a new area to your

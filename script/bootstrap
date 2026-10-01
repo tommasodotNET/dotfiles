@@ -166,6 +166,9 @@ fi
 overwrite_all=false backup_all=true skip_all=false
 link_file "$DOTFILES_ROOT/bin" "$HOME/bin"
 link_file "$DOTFILES_ROOT/tmux" "$HOME/.tmux"
+if [ "$(uname -s)" == "Linux" ]; then
+  link_file "$DOTFILES_ROOT/system/60-fnm.conf" "${XDG_CONFIG_HOME:-$HOME/.config}/environment.d/60-fnm.conf"
+fi
 if [ ! -d "$HOME/.tmux/plugins/tpm/.git" ]; then
   git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
 fi

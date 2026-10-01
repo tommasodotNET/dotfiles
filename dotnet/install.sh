@@ -1,15 +1,16 @@
-echo "Installing dotnet"
+#!/usr/bin/env bash
+set -euo pipefail
 
-{ #try 
-  curl -sSL https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.201/dotnet-sdk-10.0.201-linux-x64.tar.gz -o dotnet-sdk-10.0.201-linux-x64.tar.gz
-  mkdir -p $HOME/dotnet && tar zxf dotnet-sdk-10.0.201-linux-x64.tar.gz -C $HOME/dotnet
-  export DOTNET_ROOT=$HOME/dotnet
-  export PATH=$PATH:$HOME/dotnet
+echo "Installing .NET SDK 10.0.401"
+installer=$(mktemp)
+trap 'rm -f "$installer"' EXIT
+curl -fsSL https://dot.net/v1/dotnet-install.sh -o "$installer"
+bash "$installer" --version 10.0.401 --install-dir "$HOME/dotnet" --no-path
 
-  echo "Trusting dotnet dev certs"
-  dotnet dev-certs https --trust
+export DOTNET_ROOT="$HOME/dotnet"
+export PATH="$DOTNET_ROOT:$PATH"
+export SSL_CERT_DIR="$HOME/.aspnet/dev-certs/trust:/etc/pki/tls/certs${SSL_CERT_DIR:+:$SSL_CERT_DIR}"
 
-  export SSL_CERT_DIR="$HOME/.aspnet/dev-certs/trust:/etc/pki/tls/certs"
-} || { #catch
-  echo "dotnet install failed"
-}
+echo "Trusting dotnet dev certs"
+dotnet dev-certs https --trust
+dotnet --version
