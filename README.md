@@ -33,12 +33,38 @@ This is not the retired Microsoft Linux client or native GNOME VPN integration.
 
 ### Desktop development tools
 
-`script/bootstrap` links `system/60-fnm.conf` into the Linux user's
-`~/.config/environment.d/` (or `$XDG_CONFIG_HOME/environment.d/`). This exposes
-the default fnm Node installation, `~/.local/bin`, `~/.aspire/bin`, and
-`~/dotnet` to desktop-launched applications, including VS Code launched from
-Copilot. Sign out and back in after changing it; existing applications retain
-their old environment.
+Each tool declares its shared environment in `<topic>/environment.conf`.
+`script/bootstrap` and `script/install` automatically link these files into
+`~/.config/environment.d/60-dotfiles-<topic>.conf` on Linux (respecting
+`XDG_CONFIG_HOME`). Zsh reads the same declarations in topic-name order and
+deduplicates `PATH`. Desktop applications, including VS Code launched from
+Copilot, therefore get the tool paths without having to start Zsh.
+
+The `.conf` format is required by systemd's desktop environment loader. Use only
+shell-compatible `NAME=value` assignments, comments, and `${HOME}` or previously
+defined variable expansions. Do not use `export`, commands, conditionals, or
+shell-specific syntax here; keep shell hooks such as `fnm env` in `.zsh` files.
+
+Commands installed in `~/.local/bin`, `~/bin`, `~/go/bin`, `~/.dotnet/tools`,
+the default fnm Node installation, or the pnpm directory need no extra PATH
+entry. For a tool with a different installation directory, declare it alongside
+its installer rather than editing a central list, for example:
+
+```sh
+# example/environment.conf
+EXAMPLE_HOME=${HOME}/.local/share/example
+PATH=${EXAMPLE_HOME}/bin:${PATH}
+```
+
+Run `bash ~/.dotfiles/script/link-environment` after adding a topic, or let
+bootstrap/install do it. Edits to existing files apply through their symlinks.
+The helper migrates the old managed `60-fnm.conf` link and refuses to overwrite
+unmanaged destination files. On a fresh Linux setup, bootstrap creates all the
+links automatically; the tool installers still need to run.
+
+Sign out and back in for desktop applications to inherit changes; existing
+processes keep their old environment. A new Zsh shell reads changes immediately.
+No separate `~/.local/bin/go` link is needed after the desktop session refreshes.
 
 `script/install` includes these tool installers, which can also run separately:
 
@@ -81,8 +107,9 @@ There are a few special files in the hierarchy.
   available everywhere.
 - **topic/\*.zsh**: Any files ending in `.zsh` get loaded into your
   environment.
-- **topic/path.zsh**: Any file named `path.zsh` is loaded first and is
-  expected to set up `$PATH` or similar.
+- **topic/environment.conf**: Shared tool paths and environment variables,
+  automatically discovered by bootstrap/install for Linux desktop apps and by
+  Zsh at shell startup. Keep one declaration alongside each tool's installer.
 - **topic/completion.zsh**: Any file named `completion.zsh` is loaded
   last and is expected to set up autocomplete.
 - **topic/install.sh**: Any file named `install.sh` is executed when you run

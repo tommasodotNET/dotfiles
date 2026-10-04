@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "$(uname -s)" != Linux ]]; then
+    exit 0
+fi
+
+root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
+destination="${XDG_CONFIG_HOME:-$HOME/.config}/environment.d"
+mkdir -p "$destination"
+
+shopt -s nullglob
+sources=("$root"/*/environment.conf)
+
+for source in "${sources[@]}"; do
+    topic=$(basename "$(dirname "$source")")
+    target="$destination/60-dotfiles-$topic.conf"
+    if [[ -L "$target" && "$(readlink "$target")" == "$source" ]]; then
+        continue
+    fi
+    if [[ -e "$target" || -L "$target" ]]; then
+        printf 'Refusing to replace unmanaged environment file: %s\n' "$target" >&2
+        exit 1
+    fi
+done
+
+for source in "${sources[@]}"; do
+    topic=$(basename "$(dirname "$source")")
+    target="$destination/60-dotfiles-$topic.conf"
+    if [[ ! -L "$target" ]]; then
+        ln -s "$source" "$target"
+        printf 'Linked %s\n' "$target"
+    fi
+done
+
+legacy="$destination/60-fnm.conf"
+if [[ -L "$legacy" && "$(readlink "$legacy")" == "$root/system/60-fnm.conf" ]]; then
+    rm "$legacy"
+    printf 'Removed superseded dotfiles link: %s\n' "$legacy"
+fi

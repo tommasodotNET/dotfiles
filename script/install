@@ -6,5 +6,7 @@ set -e
 
 cd "$(dirname "$0")"/..
 
+bash script/link-environment
+
 # find the installers and run them iteratively
 find . -name install.sh -print0 | while IFS= read -r -d '' installer ; do "$installer" ; done
