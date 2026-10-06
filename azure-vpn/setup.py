@@ -130,7 +130,7 @@ def main():
         run([str(node), '--input-type=module', '-e', script, str(payload / 'private/profile.xml')], cwd=source)
         (payload / 'settings.json').write_text(json.dumps({'node': str(node), 'node_version': version, 'server_name': host}, indent=2) + '\n')
         shutil.copy2(TOPIC / 'launcher.py', payload / 'launcher.py')
-        shutil.copy2(TOPIC / 'README.md', payload / 'README.md')
+        shutil.copy2(TOPIC / 'OPENP2S.md', payload / 'README.md')
         shutil.copy2(log, payload / 'verification.log')
         # Record all installed source/dependency bytes, private config and public binaries.
         # Git metadata is not executable input and is deliberately excluded.

@@ -17,19 +17,16 @@ setup_himmelblau.sh
 
 ### Azure VPN (optional, manual connection)
 
-The tested community-client setup is reproducible from the
-[Azure VPN topic](azure-vpn/README.md). It pins OpenP2S/OpenVPN, preserves the
-local routing fixes, verifies release checksums and GitHub attestations, and
-installs a manual desktop launcher. It is **not** part of generic setup:
+The [Azure VPN topic](azure-vpn/README.md) now prefers **native NetworkManager +
+Himmelblau**: a real GNOME Settings VPN switch with Entra sign-in through the
+existing broker. See [native setup and rollback](azure-vpn/native/README.md) and
+[pinned private-source/build prerequisites](azure-vpn/native/BUILD.md).
 
-```sh
-bash ~/.dotfiles/azure-vpn/setup.sh --profile /path/outside/dotfiles/azurevpnconfig.xml
-```
-
-Read the topic prerequisites first. Supply your organisation's private XML
-separately; never commit profiles, tokens or generated VPN configuration.
-Setup does not sign in, connect, enable auto-start, or replace an existing VPN.
-This is not the retired Microsoft Linux client or native GNOME VPN integration.
+The [existing OpenP2S setup](azure-vpn/OPENP2S.md) is retained as fallback;
+`azure-vpn/setup.sh` still installs only that fallback. **Never run both at once.**
+Neither path runs from generic setup. Native preparation does not install packages,
+activate a VPN or enable autoconnect. Supply private XML separately and never
+commit profiles, tokens, corporate network details or generated configuration.
 
 ### Desktop development tools
 
