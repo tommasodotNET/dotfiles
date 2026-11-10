@@ -74,7 +74,28 @@ bash ~/.dotfiles/uv/install.sh
 The Node installer installs Node 24, makes it the fnm default, and installs
 Azure Functions Core Tools 4.15.2 globally under that Node version. If you change
 the fnm default to another installation, install Core Tools there as well.
-The .NET installer adds SDK 10.0.401 to `~/dotnet` without removing older SDKs.
+The .NET installer bootstraps [dotnetup](https://learn.microsoft.com/dotnet/core/tools/dotnetup/)
+into `~/.dotnetup` and tracks its `latest` stable SDK channel (.NET 11 today).
+Managed SDKs live in `${XDG_DATA_HOME:-~/.local/share}/dotnetup/dotnet`.
+The shared `dotnet/environment.conf` exposes both tools to Zsh and desktop apps;
+no interactive `dotnetup init` or additional shell-profile edits are needed.
+The manager itself is currently in public preview; `latest` does **not** install
+preview SDKs. Rerunning the installer refreshes the latest stable SDK, including
+future major releases. For routine maintenance:
+
+```sh
+dotnetup update       # refresh tracked SDK/runtime channels
+dotnetup self update  # update the manager itself
+dotnetup list         # inspect tracked requirements and installed versions
+```
+
+Existing `~/dotnet` installations are left untouched, but are no longer the
+active root. When migrating a machine, install any older SDKs needed by projects
+into the managed root too (for example `dotnetup sdk install 10.0.401`). Exact
+version requirements remain pinned during updates, and projects' `global.json`
+files continue to control SDK selection. To install a repository's requirements,
+run `dotnetup sdk install` from that repository. Do not mix unmanaged SDK files
+into the dotnetup-managed root.
 The uv installer installs the current uv release into `~/.local/bin`.
 Installation failures are reported rather than ignored.
 

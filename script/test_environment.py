@@ -111,9 +111,19 @@ class EnvironmentTests(unittest.TestCase):
         for directory in [
             "/usr/local/go/bin", str(self.home / "go/bin"),
             str(self.home / ".dotnet/tools"), str(self.home / ".local/bin"),
+            str(self.home / ".dotnetup"),
+            str(self.home / ".local/share/dotnetup/dotnet"),
             str(self.home / ".local/share/fnm/aliases/default/bin"),
         ]:
             self.assertIn(directory, paths)
+
+    def test_dotnet_root_honors_xdg_data_home(self):
+        self.env["XDG_DATA_HOME"] = str(self.home / "custom-data")
+        self.link()
+        for environment in [self.desktop_environment(), self.shell_environment()]:
+            root = str(self.home / "custom-data/dotnetup/dotnet")
+            self.assertEqual(environment["DOTNET_ROOT"], root)
+            self.assertIn(root, environment["PATH"].split(":"))
 
     def test_new_topic_and_edits_are_automatically_discovered(self):
         self.link()
